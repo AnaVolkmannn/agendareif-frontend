@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 
 import { BackButton } from "@/components/sections/booking/back-button";
 import { BookingShell } from "@/components/sections/booking/booking-shell";
-import { ProfessionalCard } from "@/components/sections/selecprofissional/professional-card";
+import { ProfessionalCard } from "@/components/sections/professional/professional-card";
 import { markNavigatedWithinApp } from "@/lib/app-nav-state";
-import { getProfissionais } from "@/lib/mock-agendamento";
+import { getProfissionais } from "@/app/mocks/professionals-mock";
 import type { Profissional } from "@/types/profissional";
 
 type Status = "loading" | "success" | "error";

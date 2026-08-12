@@ -9,7 +9,7 @@ import { BackButton } from "@/components/sections/booking/back-button";
 import { BookingShell } from "@/components/sections/booking/booking-shell";
 import { Button } from "@/components/ui/button";
 import { markNavigatedWithinApp } from "@/lib/app-nav-state";
-import { uploadImagemInspiracao } from "@/lib/mock-agendamento";
+import { uploadImagemInspiracao } from "@/app/mocks/professionals-mock";
 
 const TIPOS_ACEITOS = ["image/png", "image/jpeg"];
 const TAMANHO_MAX_BYTES = 10 * 1024 * 1024;
