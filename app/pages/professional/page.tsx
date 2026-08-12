@@ -43,7 +43,7 @@ export default function SelecProfissionalPage() {
       profissionalNome: profissional.nome,
     });
     markNavigatedWithinApp();
-    router.push(`/selecinspiracao?${params.toString()}`);
+    router.push(`/pages/addinspiration?${params.toString()}`);
   }
 
   return (

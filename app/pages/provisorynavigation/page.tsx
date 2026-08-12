@@ -16,7 +16,7 @@ export default async function ResumoPage({ searchParams }: ResumoPageProps) {
   return (
     <BookingShell>
       <header className="mb-4 flex items-center">
-        <BackButton fallbackHref="/selecprofissional" />
+        <BackButton fallbackHref="/professional" />
       </header>
 
       <h1 className="mb-6 font-glacial text-lg font-extrabold text-white/70 md:text-xl">
