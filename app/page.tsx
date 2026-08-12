@@ -1,5 +1,5 @@
-import { HeroSection } from "@/components/sections/hero-section";
-import { InspirationGallery } from "@/components/sections/inspiration-gallery";
+import { HeroSection } from "@/components/sections/home/hero-section";
+import { InspirationGallery } from "@/components/sections/home/inspiration-gallery";
 
 export default function Home() {
   return (

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
+import Link from "next/link";
 
 const navLinks = ["Início", "Serviços", "Inspirações", "Contato"];
 
@@ -28,12 +29,11 @@ export function HeroSection() {
         </p>
 
         <Button
+          render={<Link href="/selecprofissional">Agendar agora</Link>}
           size="lg"
           variant="secondary"
           className="mt-6 w-full rounded-full py-6 text-base transition hover:bg-primary hover:text-primary-foreground md:mx-auto md:w-auto md:px-14 md:py-7 md:text-lg"
-        >
-          Agendar agora
-        </Button>
+        />
       </div>
     </section>
   );
