@@ -16,7 +16,7 @@ function buildWhatsappLink(whatsapp: string) {
 export function ProfessionalCard({ profissional, onEscolher }: ProfessionalCardProps) {
   return (
     <article className="flex gap-4 rounded-3xl bg-secondary p-4 text-secondary-foreground">
-      <div className="h-[78px] w-[78px] shrink-0 overflow-hidden rounded-2xl bg-white md:h-24 md:w-24">
+      <div className="h-[78px] w-[78px] shrink-0 overflow-hidden rounded-xl bg-white md:h-24 md:w-24">
         {profissional.fotoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element -- URL mockada/externa, sem domínio configurado em next.config.ts
           <img
@@ -37,7 +37,7 @@ export function ProfessionalCard({ profissional, onEscolher }: ProfessionalCardP
           <Button
             type="button"
             onClick={() => onEscolher(profissional)}
-            className="h-11 w-full rounded-2xl text-[14px] font-semibold sm:flex-1"
+            className="h-11 w-full rounded-xl text-[14px] font-semibold sm:flex-1"
           >
             Escolher
           </Button>
@@ -51,7 +51,7 @@ export function ProfessionalCard({ profissional, onEscolher }: ProfessionalCardP
                 "noopener,noreferrer"
               )
             }
-            className="h-11 w-full gap-2 rounded-2xl text-[14px] font-semibold sm:flex-1"
+            className="h-11 w-full gap-2 rounded-xl text-[14px] font-semibold sm:flex-1"
           >
             <WhatsAppIcon />
             WhatsApp

@@ -10,7 +10,7 @@ interface BackButtonProps {
   fallbackHref?: string;
 }
 
-export function BackButton({ fallbackHref = "/selecprofissional" }: BackButtonProps) {
+export function BackButton({ fallbackHref = "/professional" }: BackButtonProps) {
   const router = useRouter();
 
   function handleClick() {
@@ -28,7 +28,7 @@ export function BackButton({ fallbackHref = "/selecprofissional" }: BackButtonPr
       size="icon"
       aria-label="Voltar"
       onClick={handleClick}
-      className="text-white hover:bg-white/10 hover:text-white"
+      className="text-foreground hover:bg-muted hover:text-foreground"
     >
       <ArrowLeft className="size-5" />
     </Button>
