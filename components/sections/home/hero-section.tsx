@@ -1,12 +1,17 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-
-const navLinks = ["Início", "Serviços", "Inspirações", "Contato"];
+import { Menu } from "lucide-react";
+import { ModeToggle } from "@/components/theme/mode-toggle";
 
 export function HeroSection() {
   return (
     <section className="bg-white text-foreground dark:bg-black dark:text-primary-foreground px-6 pb-10 pt-6 md:px-12 lg:px-20">
-    
+      {/* Nav */}
+      {/* Nav */}
+      <div className="mx-auto flex max-w-6xl items-center">
+        <ModeToggle />
+      </div>
+
       {/* Conteúdo */}
       <div className="mx-auto mt-6 max-w-6xl text-center md:mt-16">
         <h1 className="font-barbra text-4xl text-secondary md:text-6xl">
@@ -27,7 +32,7 @@ export function HeroSection() {
           render={<Link href="/pages/professional">Agendar agora</Link>}
           size="lg"
           variant="secondary"
-          className="mt-6 w-full rounded-full py-6 text-base transition hover:bg-primary hover:text-primary-foreground md:mx-auto md:w-auto md:px-14 md:py-7 md:text-lg"
+          className="mt-6 w-full rounded-xl py-6 text-base transition hover:bg-primary hover:text-primary-foreground md:mx-auto md:w-auto md:px-14 md:py-7 md:text-lg"
         />
       </div>
     </section>

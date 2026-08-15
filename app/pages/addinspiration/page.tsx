@@ -76,14 +76,14 @@ function SelecInspiracaoContent() {
     setErro(null);
   }
 
-  function handlePular() {
+    function handlePular() {
     const params = buildParamsBase();
     params.set("temInspiracao", "false");
     markNavigatedWithinApp();
-    router.push(`/pages/provisorynavigation?${params.toString()}`);
+    router.push(`/pages/scheduling?${params.toString()}`);
   }
 
-  async function handleContinuar() {
+    async function handleContinuar() {
     if (!arquivo) return;
 
     setEnviando(true);
@@ -94,7 +94,7 @@ function SelecInspiracaoContent() {
       params.set("temInspiracao", "true");
       params.set("imagemUrl", resultado.url);
       markNavigatedWithinApp();
-      router.push(`/pages/provisorynavigation?${params.toString()}`);
+      router.push(`/pages/scheduling?${params.toString()}`);
     } catch {
       setErro("Não foi possível enviar a imagem. Tente novamente.");
     } finally {
@@ -111,8 +111,8 @@ function SelecInspiracaoContent() {
       <h1 className="mb-0.5 mt-2 font-glacial text-xl font-extrabold md:text-2xl">
         Imagem de inspiração
       </h1>
-      <p className="mb-2 text-[11px] tracking-wide text-white/60">(OPCIONAL)</p>
-      <p className="mb-6 text-[13px] text-white/70 md:text-sm">
+      <p className="mb-2 text-[11px] tracking-wide text-foreground/60">(OPCIONAL)</p>
+      <p className="mb-6 text-[13px] text-foreground/70 md:text-sm">
         Adicione uma foto de referência para o seu serviço
       </p>
 
@@ -129,7 +129,7 @@ function SelecInspiracaoContent() {
       <button
         type="button"
         onClick={abrirSeletorDeArquivo}
-        className="flex flex-col items-center justify-center gap-1.5 rounded-3xl border-2 border-dashed border-primary bg-white px-4 py-10 text-primary transition hover:bg-white/95 md:py-14"
+        className="flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-primary bg-white px-4 py-10 text-primary transition hover:bg-white/95 md:py-14"
       >
         <Upload className="mb-1 size-9 md:size-11" strokeWidth={1.6} />
         <span className="text-[15px] font-bold md:text-base">Adicionar foto</span>
@@ -167,7 +167,7 @@ function SelecInspiracaoContent() {
           variant="ghost"
           onClick={handlePular}
           disabled={enviando}
-          className="h-auto text-white/70 hover:bg-white/10 hover:text-white md:order-1"
+          className="h-auto text-foreground/70 hover:bg-muted hover:text-foreground md:order-1"
         >
           Pular essa etapa
         </Button>
@@ -176,7 +176,7 @@ function SelecInspiracaoContent() {
           type="button"
           onClick={handleContinuar}
           disabled={!arquivo || enviando}
-          className="h-11 w-full gap-2 rounded-2xl text-[15px] font-semibold md:order-2 md:w-auto md:px-10"
+          className="h-11 w-full gap-2 rounded-lg text-[15px] font-semibold md:order-2 md:w-auto md:px-10d"
         >
           {enviando ? (
             <>
