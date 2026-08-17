@@ -5,7 +5,7 @@ import { ModeToggle } from "@/components/theme/mode-toggle";
 
 export function HeroSection() {
   return (
-    <section className="bg-white text-foreground dark:bg-black dark:text-primary-foreground px-6 pb-10 pt-6 md:px-12 lg:px-20">
+    <section className="bg-background text-foreground px-6 pb-10 pt-6 md:px-12 lg:px-20">
       {/* Nav */}
       {/* Nav */}
       <div className="mx-auto flex max-w-6xl items-center">
