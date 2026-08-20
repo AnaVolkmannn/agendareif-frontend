@@ -23,10 +23,7 @@ function SchedulingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const profissionalId = searchParams.get("profissionalId");
   const profissionalNome = searchParams.get("profissionalNome");
-  const temInspiracao = searchParams.get("temInspiracao");
-  const imagemUrl = searchParams.get("imagemUrl");
 
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
@@ -85,18 +82,15 @@ function SchedulingContent() {
   function handleContinue() {
     if (!selectedDay || !selectedTime) return;
 
-    const params = new URLSearchParams();
-    if (profissionalId) params.set("profissionalId", profissionalId);
-    if (profissionalNome) params.set("profissionalNome", profissionalNome);
-    if (temInspiracao) params.set("temInspiracao", temInspiracao);
-    if (imagemUrl) params.set("imagemUrl", imagemUrl);
+    // Preserva os params vindos das etapas anteriores (profissional, serviços).
+    const params = new URLSearchParams(searchParams.toString());
 
     const dataAgendada = new Date(year, month, selectedDay);
     params.set("data", dataAgendada.toISOString().split("T")[0]); // YYYY-MM-DD
     params.set("hora", selectedTime);
 
     markNavigatedWithinApp();
-    router.push(`/pages/confirmacao?${params.toString()}`); // TODO: ajustar se o nome real for outro
+    router.push(`/pages/addinspiration?${params.toString()}`);
   }
 
   const formattedSelectedDate = selectedDay
@@ -106,7 +100,7 @@ function SchedulingContent() {
   return (
     <BookingShell>
       <header className="mb-2 flex items-center">
-        <BackButton fallbackHref="/pages/addinspiration" />
+        <BackButton fallbackHref="/pages/service" />
       </header>
 
       <h1 className="mb-0.5 mt-2 font-glacial text-xl font-extrabold md:text-2xl">

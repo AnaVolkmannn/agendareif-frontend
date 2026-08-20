@@ -35,6 +35,7 @@ function ConfirmacaoContent() {
   const searchParams = useSearchParams();
 
   const profissionalNome = searchParams.get("profissionalNome") ?? "—";
+  const serviceName = searchParams.get("serviceName");
   const temInspiracao = searchParams.get("temInspiracao") === "true";
   const data = searchParams.get("data");
   const hora = searchParams.get("hora");
@@ -46,8 +47,14 @@ function ConfirmacaoContent() {
   const [mensagemErro, setMensagemErro] = useState<string | null>(null);
 
   useEffect(() => {
+    // Serviços escolhidos na etapa de seleção chegam pela URL. Se não vierem
+    // (ex.: acesso direto), cai no mock para não quebrar a tela.
+    if (serviceName) {
+      setServico(serviceName);
+      return;
+    }
     getServicoContratado().then(setServico);
-  }, []);
+  }, [serviceName]);
 
   function handleCampoChange(campo: keyof DadosCliente, valor: string) {
     const valorFinal = campo === "telefone" ? mascararTelefone(valor) : valor;
@@ -94,7 +101,7 @@ function ConfirmacaoContent() {
   return (
     <BookingShell>
       <header className="mb-2 flex items-center">
-        <BackButton fallbackHref="/pages/scheduling" />
+        <BackButton fallbackHref="/pages/addinspiration" />
       </header>
 
       <h1 className="mb-1 mt-2 font-glacial text-2xl font-extrabold md:text-3xl">
