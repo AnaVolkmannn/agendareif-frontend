@@ -11,3 +11,13 @@ export function formatarDataHora(dataIso: string | null, hora: string | null): s
   const dataFormatada = `${dia}/${mes}/${ano}`;
   return hora ? `${dataFormatada} - ${hora}` : dataFormatada;
 }
+
+/**
+ * Formata um valor em reais para o padrão brasileiro. Ex: 150 => "R$ 150,00".
+ */
+export function formatPrice(value: number): string {
+  return value.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+}
