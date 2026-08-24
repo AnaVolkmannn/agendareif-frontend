@@ -26,9 +26,6 @@ function SelecInspiracaoContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const profissionalId = searchParams.get("profissionalId");
-  const profissionalNome = searchParams.get("profissionalNome");
-
   const inputRef = useRef<HTMLInputElement>(null);
   const [arquivo, setArquivo] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -36,10 +33,8 @@ function SelecInspiracaoContent() {
   const [enviando, setEnviando] = useState(false);
 
   function buildParamsBase() {
-    const params = new URLSearchParams();
-    if (profissionalId) params.set("profissionalId", profissionalId);
-    if (profissionalNome) params.set("profissionalNome", profissionalNome);
-    return params;
+    // Preserva todos os params das etapas anteriores (profissional, serviços, data/hora).
+    return new URLSearchParams(searchParams.toString());
   }
 
   function abrirSeletorDeArquivo() {
@@ -76,14 +71,14 @@ function SelecInspiracaoContent() {
     setErro(null);
   }
 
-    function handlePular() {
+  function handlePular() {
     const params = buildParamsBase();
     params.set("temInspiracao", "false");
     markNavigatedWithinApp();
-    router.push(`/pages/scheduling?${params.toString()}`);
+    router.push(`/pages/confirmacao?${params.toString()}`);
   }
 
-    async function handleContinuar() {
+  async function handleContinuar() {
     if (!arquivo) return;
 
     setEnviando(true);
@@ -94,7 +89,7 @@ function SelecInspiracaoContent() {
       params.set("temInspiracao", "true");
       params.set("imagemUrl", resultado.url);
       markNavigatedWithinApp();
-      router.push(`/pages/scheduling?${params.toString()}`);
+      router.push(`/pages/confirmacao?${params.toString()}`);
     } catch {
       setErro("Não foi possível enviar a imagem. Tente novamente.");
     } finally {
@@ -105,7 +100,7 @@ function SelecInspiracaoContent() {
   return (
     <BookingShell>
       <header className="mb-2 flex items-center">
-        <BackButton fallbackHref="/professional" />
+        <BackButton fallbackHref="/pages/scheduling" />
       </header>
 
       <h1 className="mb-0.5 mt-2 font-glacial text-xl font-extrabold md:text-2xl">
@@ -176,7 +171,7 @@ function SelecInspiracaoContent() {
           type="button"
           onClick={handleContinuar}
           disabled={!arquivo || enviando}
-          className="h-11 w-full gap-2 rounded-lg text-[15px] font-semibold md:order-2 md:w-auto md:px-10d"
+          className="h-11 w-full gap-2 rounded-lg text-[15px] font-semibold md:order-2 md:w-auto md:px-10"
         >
           {enviando ? (
             <>

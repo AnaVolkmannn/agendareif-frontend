@@ -1,9 +1,14 @@
 import type { DadosCliente } from "@/types/agendamento";
 
 /**
+ * Fallback do serviço contratado.
+ *
+ * O fluxo já tem a etapa de seleção de serviço (/pages/service), então a
+ * confirmação normalmente recebe o serviço escolhido pela URL
+ * (param `serviceName`). Esta função só é usada quando esse dado não
+ * chegam (ex.: acesso direto à tela de confirmação), pra não quebrar a UI.
+ *
  * TODO: substituir pela chamada real quando o backend estiver pronto.
- * Ainda não existe etapa de seleção de serviço no fluxo (só profissional,
- * inspiração e data/hora), então o serviço contratado fica mockado aqui.
  * Endpoint esperado: GET /api/agenda/servico?profissionalId=...
  */
 export async function getServicoContratado(): Promise<string> {
