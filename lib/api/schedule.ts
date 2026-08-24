@@ -8,8 +8,8 @@ export interface TimeSlot {
  * Endpoint esperado: GET /api/agenda/dias-disponiveis?year=2026&month=5
  * Deve retornar os dias do mês que têm ao menos um horário livre.
  *
- * Por enquanto (mock): todo dia a partir de hoje está disponível;
- * dias, meses e anos anteriores ao atual ficam bloqueados.
+ * Por enquanto (mock): dias disponíveis vão de hoje até 3 meses à frente.
+ * Dias/meses/anos anteriores a hoje, ou depois desse limite, ficam bloqueados.
  */
 export async function getAvailableDays(
   year: number,
@@ -20,11 +20,14 @@ export async function getAvailableDays(
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
 
+  const limiteMaximo = new Date(hoje);
+  limiteMaximo.setMonth(limiteMaximo.getMonth() + 3);
+
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
   return Array.from({ length: daysInMonth }, (_, i) => i + 1).filter((day) => {
     const data = new Date(year, month, day);
-    return data >= hoje;
+    return data >= hoje && data <= limiteMaximo;
   });
 }
 
