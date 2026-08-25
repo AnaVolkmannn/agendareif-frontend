@@ -27,7 +27,7 @@ const glacial = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "agendareif",
+  title: "Reif | Agendamento",
   description: "Projeto agendareif",
 };
 
