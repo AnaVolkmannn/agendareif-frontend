@@ -138,20 +138,22 @@ function SelecInspiracaoContent() {
       )}
 
       {previewUrl && (
-        <div className="relative mt-4 h-[84px] w-[84px] overflow-hidden rounded-2xl bg-white md:h-24 md:w-24">
-          {/* eslint-disable-next-line @next/next/no-img-element -- blob: URL local, next/image não aceita esse esquema */}
-          <img
-            src={previewUrl}
-            alt="Prévia da imagem de inspiração selecionada"
-            className="h-full w-full object-cover"
-          />
+        <div className="relative mt-4 w-fit">
+          <div className="h-[84px] w-[84px] overflow-hidden rounded-2xl bg-white md:h-24 md:w-24">
+            {/* eslint-disable-next-line @next/next/no-img-element -- blob: URL local, next/image não aceita esse esquema */}
+            <img
+              src={previewUrl}
+              alt="Prévia da imagem de inspiração selecionada"
+              className="h-full w-full object-cover"
+            />
+          </div>
           <button
             type="button"
             onClick={removerImagem}
             aria-label="Remover imagem selecionada"
-            className="absolute -right-1.5 -top-1.5 flex size-[22px] items-center justify-center rounded-full bg-white text-black shadow"
+            className="absolute -right-3 -top-3 flex size-8 items-center justify-center rounded-full bg-white text-black shadow-md ring-1 ring-black/10 transition hover:bg-neutral-100 active:scale-95 md:size-7"
           >
-            <X className="size-3.5" />
+            <X className="size-4 md:size-3.5" />
           </button>
         </div>
       )}
@@ -159,19 +161,9 @@ function SelecInspiracaoContent() {
       <div className="mt-auto flex flex-col items-center gap-3 pt-10 md:flex-row md:justify-between md:pt-16">
         <Button
           type="button"
-          variant="ghost"
-          onClick={handlePular}
-          disabled={enviando}
-          className="h-auto text-foreground/70 hover:bg-muted hover:text-foreground md:order-1"
-        >
-          Pular essa etapa
-        </Button>
-
-        <Button
-          type="button"
           onClick={handleContinuar}
           disabled={!arquivo || enviando}
-          className="h-11 w-full gap-2 rounded-lg text-[15px] font-semibold md:order-2 md:w-auto md:px-10"
+          className="order-1 h-11 w-full gap-2 rounded-lg text-[15px] font-semibold md:order-2 md:w-auto md:px-10"
         >
           {enviando ? (
             <>
@@ -181,6 +173,16 @@ function SelecInspiracaoContent() {
           ) : (
             "Continuar"
           )}
+        </Button>
+
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={handlePular}
+          disabled={enviando}
+          className="order-2 h-auto text-foreground/70 hover:bg-muted hover:text-foreground md:order-1"
+        >
+          Pular essa etapa
         </Button>
       </div>
     </BookingShell>
