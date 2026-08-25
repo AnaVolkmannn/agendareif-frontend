@@ -11,7 +11,7 @@ export function InspirationGallery() {
           {placeholders.map((_, i) => (
             <div
               key={i}
-              className="aspect-square rounded-2xl bg-white shadow-sm transition hover:shadow-md"
+              className="aspect-square rounded-2xl bg-white shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-md active:scale-105"
             />
           ))}
         </div>

@@ -14,17 +14,17 @@ export function HeroSection() {
 
       {/* Conteúdo */}
       <div className="mx-auto mt-6 max-w-6xl text-center md:mt-16">
-        <h1 className="font-barbra text-4xl text-secondary md:text-6xl">
+        <h1 className="font-barbra text-7xl text-secondary md:text-9xl">
           Reif
         </h1>
-        <p className="font-barbra text-sm tracking-widest md:text-base">
+        <p className="font-barbra text-base tracking-widest md:text-lg">
           BEAUTY STUDIO
         </p>
 
-        <p className="mt-4 text-sm font-medium md:text-lg">
+        <p className="mt-4 text-base font-medium md:text-xl">
           Unhas &nbsp;•&nbsp; Tranças &nbsp;•&nbsp; Cílios
         </p>
-        <p className="mt-1 text-sm text-foreground/80 dark:text-primary-foreground/80 md:text-base">
+        <p className="mt-1 text-base text-foreground/80 dark:text-primary-foreground/80 md:text-lg">
           Realce sua beleza com profissionais especializadas
         </p>
 
@@ -32,7 +32,7 @@ export function HeroSection() {
           render={<Link href="/pages/professional">Agendar agora</Link>}
           size="lg"
           variant="secondary"
-          className="mt-6 w-full rounded-xl py-6 text-base transition hover:bg-primary hover:text-primary-foreground md:mx-auto md:w-auto md:px-14 md:py-7 md:text-lg"
+          className="mt-6 w-full rounded-xl py-7 text-lg transition hover:bg-primary hover:text-primary-foreground md:mx-auto md:w-auto md:px-16 md:py-8 md:text-xl"
         />
       </div>
     </section>
