@@ -3,9 +3,20 @@ export interface Profissional {
   nome: string;
   especialidade: string;
   fotoUrl?: string;
-  /**
-   * Telefone no formato internacional, somente dígitos (DDI + DDD + número).
-   * Ex: "5547999990001". Usado para montar o link https://wa.me/<whatsapp>.
-   */
+  
   whatsapp: string;
+  email?: string;
+}
+
+export interface NovoProfissionalInput {
+  nome: string;
+  email: string;
+  whatsapp: string;
+  foto?: File | null;
+}
+
+export interface EditarProfissionalInput {
+  nome: string;
+  especialidade: string;
+  foto?: File | null;
 }
