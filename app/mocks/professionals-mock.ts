@@ -35,12 +35,6 @@ export async function getProfissionais(): Promise<Profissional[]> {
   return MOCK_PROFISSIONAIS;
 }
 
-/**
- * TODO: substituir pela chamada real quando o backend estiver pronto.
- * Endpoint esperado: POST /api/profissionais
- * Deve criar o profissional e disparar o e-mail de convite (RF26/RF27 —
- * fluxo de convite em si é fora do escopo do FE-ADMIN03).
- */
 export async function criarProfissional(dados: NovoProfissionalInput): Promise<Profissional> {
   await delay(600);
 
@@ -50,7 +44,7 @@ export async function criarProfissional(dados: NovoProfissionalInput): Promise<P
     nome: dados.nome.trim(),
     email: dados.email.trim(),
     whatsapp: `55${digitosWhatsapp}`,
-    especialidade: "",
+    especialidade: dados.descricao.trim(),
     fotoUrl: dados.foto ? URL.createObjectURL(dados.foto) : undefined,
   };
 
@@ -58,10 +52,6 @@ export async function criarProfissional(dados: NovoProfissionalInput): Promise<P
   return novo;
 }
 
-/**
- * TODO: substituir pela chamada real quando o backend estiver pronto.
- * Endpoint esperado: PATCH /api/profissionais/:id
- */
 export async function atualizarProfissional(
   id: string,
   dados: EditarProfissionalInput
@@ -86,6 +76,11 @@ export async function atualizarProfissional(
   return atualizado;
 }
 
+export async function excluirProfissional(id: string): Promise<void> {
+  await delay(400);
+  MOCK_PROFISSIONAIS = MOCK_PROFISSIONAIS.filter((profissional) => profissional.id !== id);
+}
+
 export interface UploadInspiracaoResult {
   url: string;
 }
@@ -95,9 +90,4 @@ export async function uploadImagemInspiracao(
 ): Promise<UploadInspiracaoResult> {
   await delay(600);
   return { url: URL.createObjectURL(file) };
-}
-
-export async function excluirProfissional(id: string): Promise<void> {
-  await delay(400);
-  MOCK_PROFISSIONAIS = MOCK_PROFISSIONAIS.filter((profissional) => profissional.id !== id);
 }

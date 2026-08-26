@@ -3,7 +3,7 @@ export interface Profissional {
   nome: string;
   especialidade: string;
   fotoUrl?: string;
-  
+
   whatsapp: string;
   email?: string;
 }
@@ -12,6 +12,7 @@ export interface NovoProfissionalInput {
   nome: string;
   email: string;
   whatsapp: string;
+  descricao: string;
   foto?: File | null;
 }
 
