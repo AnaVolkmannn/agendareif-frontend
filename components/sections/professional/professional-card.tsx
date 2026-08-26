@@ -34,11 +34,12 @@ export function ProfessionalCard({ profissional, onEscolher }: ProfessionalCardP
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => setExpandido((atual) => !atual)}
           aria-expanded={expandido}
-          className="flex items-center gap-1.5 text-left"
+          className="h-auto w-fit justify-start gap-1.5 p-0 hover:bg-transparent"
         >
           <h2 className="font-glacial text-base font-bold md:text-lg">{profissional.nome}</h2>
           <ChevronDown
@@ -47,7 +48,7 @@ export function ProfessionalCard({ profissional, onEscolher }: ProfessionalCardP
               expandido && "rotate-180"
             )}
           />
-        </button>
+        </Button>
 
         <div
           className={cn(

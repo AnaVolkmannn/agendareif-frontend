@@ -1,6 +1,7 @@
 import { Pencil, Trash2, UserRound } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import type { Profissional } from "@/types/profissional";
 
 interface ProfessionalListItemProps {
@@ -30,23 +31,27 @@ export function ProfessionalListItem({
         </p>
       </div>
 
-      <div className="flex shrink-0 items-start gap-3">
-        <button
+      <div className="flex shrink-0 items-start gap-1">
+        <Button
           type="button"
+          variant="ghost"
+          size="icon"
           onClick={() => onEditar(profissional)}
           aria-label={`Editar ${profissional.nome}`}
-          className="text-primary transition hover:text-primary-hover"
+          className="text-primary hover:text-primary-hover"
         >
           <Pencil className="size-[18px]" />
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="ghost"
+          size="icon"
           onClick={() => onExcluir(profissional)}
           aria-label={`Excluir ${profissional.nome}`}
-          className="text-destructive transition hover:text-destructive/70"
+          className="text-destructive hover:text-destructive/70"
         >
           <Trash2 className="size-[18px]" />
-        </button>
+        </Button>
       </div>
     </li>
   );

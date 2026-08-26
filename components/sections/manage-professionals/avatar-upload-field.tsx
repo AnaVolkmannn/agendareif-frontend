@@ -5,6 +5,7 @@ import type { ChangeEvent } from "react";
 import { UserRound } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 const TIPOS_ACEITOS = ["image/png", "image/jpeg"];
 const TAMANHO_MAX_BYTES = 5 * 1024 * 1024;
@@ -60,13 +61,14 @@ export function AvatarUploadField({ fotoUrlInicial, onFotoChange }: AvatarUpload
         </AvatarFallback>
       </Avatar>
 
-      <button
+      <Button
         type="button"
+        variant="link"
         onClick={() => inputRef.current?.click()}
-        className="text-[13px] font-semibold text-primary underline-offset-2 hover:underline"
+        className="h-auto p-0 text-[13px] font-semibold"
       >
         Adicionar foto de perfil
-      </button>
+      </Button>
 
       {erro && (
         <p className="text-xs text-destructive" role="alert">
