@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { AvatarUploadField } from "@/components/sections/manage-professionals/avatar-upload-field";
@@ -41,6 +42,7 @@ export function CreateProfessionalDialog({
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [descricao, setDescricao] = useState("");
   const [foto, setFoto] = useState<File | null>(null);
   const [erros, setErros] = useState<Erros>({});
   const [erroGeral, setErroGeral] = useState<string | null>(null);
@@ -68,7 +70,7 @@ export function CreateProfessionalDialog({
     setErroGeral(null);
     setSalvando(true);
     try {
-      const criado = await criarProfissional({ nome, email, whatsapp, foto });
+      const criado = await criarProfissional({ nome, email, whatsapp, descricao, foto });
       onCriado(criado);
       resetForm();
       onOpenChange(false);
@@ -83,6 +85,7 @@ export function CreateProfessionalDialog({
     setNome("");
     setEmail("");
     setWhatsapp("");
+    setDescricao("");
     setFoto(null);
     setErros({});
   }
@@ -160,6 +163,17 @@ export function CreateProfessionalDialog({
                 {erros.whatsapp}
               </p>
             )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="create-descricao">Descrição</Label>
+            <Textarea
+              id="create-descricao"
+              rows={3}
+              value={descricao}
+              onChange={(e) => setDescricao(e.target.value)}
+              className={FIELD_CLASSES}
+            />
           </div>
         </div>
 
