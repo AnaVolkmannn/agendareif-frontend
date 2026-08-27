@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarCheck2, Menu, Users } from "lucide-react";
+import { CalendarCheck2, Images, Menu, Users } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +24,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { href: "/pages/dashboard", label: "Dashboard", icon: CalendarCheck2 },
   { href: "/pages/manage-professionals", label: "Profissionais", icon: Users },
+  { href: "/pages/portfolio-professionals", label: "Portfólio", icon: Images },
 ];
 
 interface AdminShellProps {
@@ -38,7 +39,7 @@ export function AdminShell({ topLabel, title, showAdminBadge, children }: AdminS
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/95 px-4 pb-3 pt-4 backdrop-blur supports-backdrop-filter:bg-background/80 md:px-8">
+      <header className="sticky top-0 z-30 bg-background/95 px-4 pb-3 pt-4 backdrop-blur supports-backdrop-filter:bg-background/80 md:px-8">
         {topLabel && (
           <p className="mb-2 text-[11px] font-semibold tracking-wide text-muted-foreground">
             {topLabel}
@@ -80,7 +81,7 @@ export function AdminShell({ topLabel, title, showAdminBadge, children }: AdminS
             </SheetContent>
           </Sheet>
 
-          <h1 className="text-center font-glacial text-2xl font-extrabold md:text-3xl">
+          <h1 className="text-center text-2xl font-semibold md:text-3xl">
             {title}
           </h1>
 
