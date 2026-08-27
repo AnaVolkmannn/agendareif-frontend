@@ -2,8 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { CalendarRange, Search } from "lucide-react";
-
-import { AdminShell } from "@/components/sections/admin/admin-shell";
+import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -17,7 +16,10 @@ import {
   toIsoDate,
 } from "@/lib/format";
 import { getAgendamentosDashboard, HOJE_REF } from "@/app/mocks/dashboard-mock";
-import type { AgendamentoDashboard, StatusAgendamento } from "@/types/dashboard";
+import type {
+  AgendamentoDashboard,
+  StatusAgendamento,
+} from "@/types/dashboard";
 
 type Status = "loading" | "success" | "error";
 type Aba = "hoje" | "semana" | "mes" | "periodo";
@@ -95,7 +97,7 @@ export default function DashboardPage() {
 
   const filtrados = useMemo(() => {
     const ordenados = [...agendamentos].sort((a, b) =>
-      `${a.dataIso}${a.hora}`.localeCompare(`${b.dataIso}${b.hora}`)
+      `${a.dataIso}${a.hora}`.localeCompare(`${b.dataIso}${b.hora}`),
     );
 
     switch (aba) {
@@ -104,30 +106,43 @@ export default function DashboardPage() {
 
       case "semana": {
         const naSemana = ordenados.filter(
-          (a) => a.dataIso >= INICIO_SEMANA_ISO && a.dataIso <= FIM_SEMANA_ISO
+          (a) => a.dataIso >= INICIO_SEMANA_ISO && a.dataIso <= FIM_SEMANA_ISO,
         );
         if (diaSemanaFiltro === "todos") return naSemana;
-        return naSemana.filter((a) => getDiaSemanaCurto(a.dataIso) === diaSemanaFiltro);
+        return naSemana.filter(
+          (a) => getDiaSemanaCurto(a.dataIso) === diaSemanaFiltro,
+        );
       }
 
       case "mes": {
-        const noMes = ordenados.filter((a) => a.dataIso.startsWith(MES_ATUAL_PREFIXO));
+        const noMes = ordenados.filter((a) =>
+          a.dataIso.startsWith(MES_ATUAL_PREFIXO),
+        );
         const termo = buscaTexto.trim().toLowerCase();
         if (!termo) return noMes;
         return noMes.filter(
           (a) =>
             a.clienteNome.toLowerCase().includes(termo) ||
-            a.servico.toLowerCase().includes(termo)
+            a.servico.toLowerCase().includes(termo),
         );
       }
 
       case "periodo":
-        return ordenados.filter((a) => a.dataIso >= periodoInicio && a.dataIso <= periodoFim);
+        return ordenados.filter(
+          (a) => a.dataIso >= periodoInicio && a.dataIso <= periodoFim,
+        );
 
       default:
         return ordenados;
     }
-  }, [agendamentos, aba, diaSemanaFiltro, buscaTexto, periodoInicio, periodoFim]);
+  }, [
+    agendamentos,
+    aba,
+    diaSemanaFiltro,
+    buscaTexto,
+    periodoInicio,
+    periodoFim,
+  ]);
 
   const stats = useMemo(
     () => ({
@@ -135,13 +150,25 @@ export default function DashboardPage() {
       cancelados: filtrados.filter((a) => a.status === "cancelado").length,
       finalizados: filtrados.filter((a) => a.status === "finalizado").length,
     }),
-    [filtrados]
+    [filtrados],
   );
 
   const presetAtivo: "7" | "15" | "mes" | null = (() => {
-    if (periodoFim === HOJE_ISO && periodoInicio === toIsoDate(subDias(HOJE_REF, 6))) return "7";
-    if (periodoFim === HOJE_ISO && periodoInicio === toIsoDate(subDias(HOJE_REF, 14))) return "15";
-    if (periodoInicio === PERIODO_PADRAO_INICIO && periodoFim === PERIODO_PADRAO_FIM) return "mes";
+    if (
+      periodoFim === HOJE_ISO &&
+      periodoInicio === toIsoDate(subDias(HOJE_REF, 6))
+    )
+      return "7";
+    if (
+      periodoFim === HOJE_ISO &&
+      periodoInicio === toIsoDate(subDias(HOJE_REF, 14))
+    )
+      return "15";
+    if (
+      periodoInicio === PERIODO_PADRAO_INICIO &&
+      periodoFim === PERIODO_PADRAO_FIM
+    )
+      return "mes";
     return null;
   })();
 
@@ -163,145 +190,177 @@ export default function DashboardPage() {
   }
 
   return (
-    <AdminShell title="Dashboard">
-      <Tabs value={aba} onValueChange={(valor) => setAba(valor as Aba)}>
-        <TabsList>
-          <TabsTab value="hoje">Hoje</TabsTab>
-          <TabsTab value="semana">Semana</TabsTab>
-          <TabsTab value="mes">Mês atual</TabsTab>
-          <TabsTab value="periodo">Período</TabsTab>
-        </TabsList>
-
-        {aba === "periodo" && (
-          <div className="flex flex-col gap-3 rounded-2xl border border-border/60 bg-card p-3">
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <div className="flex-1">
-                <label
-                  htmlFor="periodo-inicio"
-                  className="mb-1 block text-xs font-semibold text-muted-foreground"
-                >
-                  De
-                </label>
-                <Input
-                  id="periodo-inicio"
-                  type="date"
-                  value={periodoInicio}
-                  max={periodoFim}
-                  onChange={(e) => setPeriodoInicio(e.target.value)}
-                  className={cn("h-10 text-sm", CAMPO_ROSADO)}
-                />
-              </div>
-              <div className="flex-1">
-                <label
-                  htmlFor="periodo-fim"
-                  className="mb-1 block text-xs font-semibold text-muted-foreground"
-                >
-                  Até
-                </label>
-                <Input
-                  id="periodo-fim"
-                  type="date"
-                  value={periodoFim}
-                  min={periodoInicio}
-                  onChange={(e) => setPeriodoFim(e.target.value)}
-                  className={cn("h-10 text-sm", CAMPO_ROSADO)}
-                />
-              </div>
-            </div>
-            <div className="flex flex-nowrap gap-2 overflow-x-auto">
-              <Button
-                type="button"
-                size="sm"
-                variant={presetAtivo === "7" ? "default" : "outline"}
-                onClick={() => aplicarPreset(7)}
-                className="shrink-0 whitespace-nowrap rounded-full"
-              >
-                Últimos 7 dias
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant={presetAtivo === "15" ? "default" : "outline"}
-                onClick={() => aplicarPreset(15)}
-                className="shrink-0 whitespace-nowrap rounded-full"
-              >
-                Últimos 15 dias
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant={presetAtivo === "mes" ? "default" : "outline"}
-                onClick={() => aplicarPreset("mes")}
-                className="shrink-0 whitespace-nowrap rounded-full"
-              >
-                <CalendarRange className="size-3.5" />
-                Mês inteiro
-              </Button>
-            </div>
-          </div>
-        )}
-
-        <div className="mt-1 flex gap-3">
-          <StatCard label="Agendamentos" value={stats.agendados} tone="warning" />
-          <StatCard label="Cancelamentos" value={stats.cancelados} tone="destructive" />
-          <StatCard label="Finalizados" value={stats.finalizados} tone="success" />
+    <SidebarInset>
+      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/95 px-4 pb-3 pt-4 backdrop-blur supports-backdrop-filter:bg-background/80 md:px-8">
+        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
+          <SidebarTrigger className="size-9 shrink-0" />
+          <h1 className="text-center font-glacial text-2xl font-extrabold md:text-3xl">
+            Dashboard
+          </h1>
+          <span aria-hidden="true" className="size-9 shrink-0" />
         </div>
+      </header>
 
-        <TabsPanel value="hoje" className="mt-5">
-          <h2 className="font-glacial text-lg font-bold">Agenda Geral - Hoje</h2>
-          <p className="mb-4 text-[13px] text-muted-foreground">
-            {formatDiaSemanaCompleto(HOJE_ISO)}
-          </p>
-          <ListaAgendamentos aba="hoje" itens={filtrados} status={status} />
-        </TabsPanel>
+      <main className="mx-auto w-full max-w-5xl px-4 py-5 md:px-8 md:py-8">
+        <Tabs value={aba} onValueChange={(valor) => setAba(valor as Aba)}>
+          <TabsList>
+            <TabsTab value="hoje">Hoje</TabsTab>
+            <TabsTab value="semana">Semana</TabsTab>
+            <TabsTab value="mes">Mês atual</TabsTab>
+            <TabsTab value="periodo">Período</TabsTab>
+          </TabsList>
 
-        <TabsPanel value="semana" className="mt-5">
-          <div className="mb-3 flex flex-wrap gap-1.5">
-            {DIAS_SEMANA_FILTRO.map((dia) => (
-              <button
-                key={dia.valor}
-                type="button"
-                onClick={() => setDiaSemanaFiltro(dia.valor)}
-                className={cn(
-                  "h-8 shrink-0 rounded-full border px-3 text-[13px] font-semibold transition",
-                  diaSemanaFiltro === dia.valor
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-transparent text-foreground/70 hover:bg-muted"
-                )}
-              >
-                {dia.label}
-              </button>
-            ))}
-          </div>
-          <ContadorResultados total={filtrados.length} onLimpar={limparFiltro} />
-          <ListaAgendamentos aba="semana" itens={filtrados} status={status} />
-        </TabsPanel>
+          {aba === "periodo" && (
+            <div className="flex flex-col gap-3 rounded-2xl border border-border/60 bg-card p-3">
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <div className="flex-1">
+                  <label
+                    htmlFor="periodo-inicio"
+                    className="mb-1 block text-xs font-semibold text-muted-foreground"
+                  >
+                    De
+                  </label>
+                  <Input
+                    id="periodo-inicio"
+                    type="date"
+                    value={periodoInicio}
+                    max={periodoFim}
+                    onChange={(e) => setPeriodoInicio(e.target.value)}
+                    className={cn("h-10 text-sm", CAMPO_ROSADO)}
+                  />
+                </div>
+                <div className="flex-1">
+                  <label
+                    htmlFor="periodo-fim"
+                    className="mb-1 block text-xs font-semibold text-muted-foreground"
+                  >
+                    Até
+                  </label>
+                  <Input
+                    id="periodo-fim"
+                    type="date"
+                    value={periodoFim}
+                    min={periodoInicio}
+                    onChange={(e) => setPeriodoFim(e.target.value)}
+                    className={cn("h-10 text-sm", CAMPO_ROSADO)}
+                  />
+                </div>
+              </div>
+              <div className="flex flex-nowrap gap-2 overflow-x-auto">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={presetAtivo === "7" ? "default" : "outline"}
+                  onClick={() => aplicarPreset(7)}
+                  className="shrink-0 whitespace-nowrap rounded-full"
+                >
+                  Últimos 7 dias
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={presetAtivo === "15" ? "default" : "outline"}
+                  onClick={() => aplicarPreset(15)}
+                  className="shrink-0 whitespace-nowrap rounded-full"
+                >
+                  Últimos 15 dias
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={presetAtivo === "mes" ? "default" : "outline"}
+                  onClick={() => aplicarPreset("mes")}
+                  className="shrink-0 whitespace-nowrap rounded-full"
+                >
+                  <CalendarRange className="size-3.5" />
+                  Mês inteiro
+                </Button>
+              </div>
+            </div>
+          )}
 
-        <TabsPanel value="mes" className="mt-5">
-          <div className="relative mb-3">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-neutral-500" />
-            <Input
-              id="busca-mes"
-              value={buscaTexto}
-              onChange={(e) => setBuscaTexto(e.target.value)}
-              placeholder="Buscar por cliente ou serviço"
-              className={cn("h-10 pl-9", CAMPO_ROSADO)}
+          <div className="mt-1 flex gap-3">
+            <StatCard
+              label="Agendamentos"
+              value={stats.agendados}
+              tone="warning"
+            />
+            <StatCard
+              label="Cancelamentos"
+              value={stats.cancelados}
+              tone="destructive"
+            />
+            <StatCard
+              label="Finalizados"
+              value={stats.finalizados}
+              tone="success"
             />
           </div>
-          <ContadorResultados total={filtrados.length} onLimpar={limparFiltro} />
-          <ListaAgendamentos aba="mes" itens={filtrados} status={status} />
-        </TabsPanel>
 
-        <TabsPanel value="periodo" className="mt-5">
-          <ContadorResultados
-            total={filtrados.length}
-            onLimpar={limparFiltro}
-            sufixo={`${formatDataCurta(periodoInicio)} a ${formatDataCurta(periodoFim)}`}
-          />
-          <ListaAgendamentos aba="periodo" itens={filtrados} status={status} />
-        </TabsPanel>
-      </Tabs>
-    </AdminShell>
+          <TabsPanel value="hoje" className="mt-5">
+            <h2 className="font-glacial text-lg font-bold">
+              Agenda Geral - Hoje
+            </h2>
+            <p className="mb-4 text-[13px] text-muted-foreground">
+              {formatDiaSemanaCompleto(HOJE_ISO)}
+            </p>
+            <ListaAgendamentos aba="hoje" itens={filtrados} status={status} />
+          </TabsPanel>
+
+          <TabsPanel value="semana" className="mt-5">
+            <div className="mb-3 flex flex-wrap gap-1.5">
+              {DIAS_SEMANA_FILTRO.map((dia) => (
+                <button
+                  key={dia.valor}
+                  type="button"
+                  onClick={() => setDiaSemanaFiltro(dia.valor)}
+                  className={cn(
+                    "h-8 shrink-0 rounded-full border px-3 text-[13px] font-semibold transition",
+                    diaSemanaFiltro === dia.valor
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-transparent text-foreground/70 hover:bg-muted",
+                  )}
+                >
+                  {dia.label}
+                </button>
+              ))}
+            </div>
+            <ContadorResultados
+              total={filtrados.length}
+              onLimpar={limparFiltro}
+            />
+            <ListaAgendamentos aba="semana" itens={filtrados} status={status} />
+          </TabsPanel>
+
+          <TabsPanel value="mes" className="mt-5">
+            <div className="relative mb-3">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-neutral-500" />
+              <Input
+                id="busca-mes"
+                value={buscaTexto}
+                onChange={(e) => setBuscaTexto(e.target.value)}
+                placeholder="Buscar por cliente ou serviço"
+                className={cn("h-10 pl-9", CAMPO_ROSADO)}
+              />
+            </div>
+            <ContadorResultados
+              total={filtrados.length}
+              onLimpar={limparFiltro}
+            />
+            <ListaAgendamentos aba="mes" itens={filtrados} status={status} />
+          </TabsPanel>
+
+          <TabsPanel value="periodo" className="mt-5">
+            <ContadorResultados
+              total={filtrados.length}
+              onLimpar={limparFiltro}
+              sufixo={`${formatDataCurta(periodoInicio)} a ${formatDataCurta(periodoFim)}`}
+            />
+            <ListaAgendamentos aba="periodo" itens={filtrados} status={status} />
+          </TabsPanel>
+        </Tabs>
+      </main>
+    </SidebarInset>
   );
 }
 
@@ -323,8 +382,12 @@ function StatCard({
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-1 rounded-2xl border border-border/60 bg-card px-3 py-4 text-center shadow-sm">
-      <span className={cn("font-glacial text-3xl font-extrabold", toneClasses)}>{value}</span>
-      <span className="text-[12px] font-medium text-muted-foreground">{label}</span>
+      <span className={cn("font-glacial text-3xl font-extrabold", toneClasses)}>
+        {value}
+      </span>
+      <span className="text-[12px] font-medium text-muted-foreground">
+        {label}
+      </span>
     </div>
   );
 }
@@ -391,13 +454,18 @@ function ListaAgendamentos({
   if (status === "error") {
     return (
       <p className="text-sm text-destructive" role="alert">
-        Não foi possível carregar os agendamentos agora. Tente novamente em instantes.
+        Não foi possível carregar os agendamentos agora. Tente novamente em
+        instantes.
       </p>
     );
   }
 
   if (itens.length === 0) {
-    return <p className="text-sm text-muted-foreground">Nenhum agendamento encontrado.</p>;
+    return (
+      <p className="text-sm text-muted-foreground">
+        Nenhum agendamento encontrado.
+      </p>
+    );
   }
 
   const usaDiaMes = aba === "mes" || aba === "periodo";
@@ -406,7 +474,9 @@ function ListaAgendamentos({
     <ul className="flex flex-col gap-2">
       {itens.map((item) => {
         const { dia, mes } = formatDiaMesAbreviado(item.dataIso);
-        const dateTopLabel = usaDiaMes ? dia : getDiaSemanaCurto(item.dataIso).toUpperCase();
+        const dateTopLabel = usaDiaMes
+          ? dia
+          : getDiaSemanaCurto(item.dataIso).toUpperCase();
         const dateBottomLabel = usaDiaMes ? mes : undefined;
 
         return (
@@ -414,7 +484,7 @@ function ListaAgendamentos({
             key={item.id}
             className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card px-3 py-3 shadow-sm"
           >
-            <div className="flex w-[68px] shrink-0 items-center justify-center gap-1 whitespace-nowrap text-center">
+            <div className="flex w-17 shrink-0 items-center justify-center gap-1 whitespace-nowrap text-center">
               <span className="text-[11px] font-bold uppercase text-muted-foreground">
                 {dateTopLabel}
               </span>
@@ -423,14 +493,18 @@ function ListaAgendamentos({
                   {dateBottomLabel}
                 </span>
               )}
-              <span className="text-[13px] font-semibold text-foreground">{item.hora}</span>
+              <span className="text-[13px] font-semibold text-foreground">
+                {item.hora}
+              </span>
             </div>
 
             <div className="min-w-0 flex-1">
               <p className="truncate text-[14px] font-semibold text-foreground">
                 {item.servico}
               </p>
-              <p className="truncate text-[13px] text-muted-foreground">{item.clienteNome}</p>
+              <p className="truncate text-[13px] text-muted-foreground">
+                {item.clienteNome}
+              </p>
             </div>
 
             <StatusBadge status={item.status} />
