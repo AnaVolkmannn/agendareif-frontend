@@ -26,6 +26,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { href: "/pages/dashboard", label: "Dashboard", icon: CalendarCheck2 },
   { href: "/pages/manage-professionals", label: "Profissionais", icon: Users },
+  { href: "/pages/portfolio-professionals", label: "Portfólio", icon: Users },
 ];
 
 export function AppSidebar() {
