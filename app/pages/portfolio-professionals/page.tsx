@@ -101,9 +101,6 @@ export default function PortfolioPage() {
   return (
     <SidebarInset>
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/95 px-4 pb-3 pt-4 backdrop-blur supports-backdrop-filter:bg-background/80 md:px-8">
-        <p className="mb-2 text-[11px] font-semibold tracking-wide text-muted-foreground">
-          PORTFÓLIO
-        </p>
         <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
           <SidebarTrigger className="size-9 shrink-0" />
           <h1 className="text-center font-glacial text-2xl font-extrabold md:text-3xl">
