@@ -1,10 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronDown } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import type { Profissional } from "@/types/profissional";
 
 interface ProfessionalCardProps {
@@ -18,8 +14,6 @@ function buildWhatsappLink(whatsapp: string) {
 }
 
 export function ProfessionalCard({ profissional, onEscolher }: ProfessionalCardProps) {
-  const [expandido, setExpandido] = useState(false);
-
   return (
     <article className="flex h-full min-h-[132px] gap-4 rounded-3xl bg-secondary p-4 text-secondary-foreground md:min-h-[140px]">
       <div className="h-[78px] w-[78px] shrink-0 overflow-hidden rounded-xl bg-white md:h-24 md:w-24">
@@ -34,31 +28,11 @@ export function ProfessionalCard({ profissional, onEscolher }: ProfessionalCardP
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <button
-          type="button"
-          onClick={() => setExpandido((atual) => !atual)}
-          aria-expanded={expandido}
-          className="flex items-center gap-1.5 text-left"
-        >
-          <h2 className="font-glacial text-base font-bold md:text-lg">{profissional.nome}</h2>
-          <ChevronDown
-            className={cn(
-              "size-4 shrink-0 text-secondary-foreground/80 transition-transform",
-              expandido && "rotate-180"
-            )}
-          />
-        </button>
+        <h2 className="font-glacial text-base font-bold md:text-lg">{profissional.nome}</h2>
 
-        <div
-          className={cn(
-            "grid transition-all duration-200 ease-out",
-            expandido ? "mb-3 mt-1 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-          )}
-        >
-          <p className="overflow-hidden text-[13px] leading-snug text-secondary-foreground/80 md:text-sm">
-            {profissional.especialidade}
-          </p>
-        </div>
+        <p className="mb-3 mt-1 text-[13px] leading-snug text-secondary-foreground/80 md:text-sm">
+          {profissional.especialidade}
+        </p>
 
         <div className="mt-auto flex flex-col gap-2 sm:flex-row">
           <Button
