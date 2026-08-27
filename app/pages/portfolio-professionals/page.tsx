@@ -19,7 +19,7 @@ import {
 } from "@dnd-kit/sortable";
 import { Plus } from "lucide-react";
 
-import { AdminShell } from "@/components/sections/admin/admin-shell";
+import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { PhotoCard } from "@/components/sections/portfolio-professionals/photo-card";
 import {
@@ -45,7 +45,7 @@ export default function PortfolioPage() {
     }),
     useSensor(TouchSensor, {
       activationConstraint: { delay: 150, tolerance: 8 },
-    })
+    }),
   );
 
   useEffect(() => {
@@ -59,7 +59,9 @@ export default function PortfolioPage() {
     inputRef.current?.click();
   }
 
-  async function handleArquivoSelecionado(event: ChangeEvent<HTMLInputElement>) {
+  async function handleArquivoSelecionado(
+    event: ChangeEvent<HTMLInputElement>,
+  ) {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file || !TIPOS_ACEITOS.includes(file.type)) return;
@@ -97,68 +99,90 @@ export default function PortfolioPage() {
   }
 
   return (
-    <AdminShell topLabel="PORTFÓLIO" title="Portfólio">
-      <input
-        ref={inputRef}
-        type="file"
-        accept={TIPOS_ACEITOS.join(",")}
-        onChange={handleArquivoSelecionado}
-        className="sr-only"
-        tabIndex={-1}
-        aria-hidden="true"
-      />
-
-      {isLoading ? (
-        <div className="grid grid-cols-2 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="aspect-square animate-pulse rounded-2xl bg-muted" />
-          ))}
+    <SidebarInset>
+      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/95 px-4 pb-3 pt-4 backdrop-blur supports-backdrop-filter:bg-background/80 md:px-8">
+        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
+          <SidebarTrigger className="size-9 shrink-0" />
+          <h1 className="text-center font-glacial text-2xl font-extrabold md:text-3xl">
+            Portfólio
+          </h1>
+          <span aria-hidden="true" className="size-9 shrink-0" />
         </div>
-      ) : photos.length === 0 ? (
-        <p className="py-10 text-center text-sm text-muted-foreground">
-          Nenhuma foto adicionada ainda.
-        </p>
-      ) : (
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={photos.map((p) => p.id)} strategy={rectSortingStrategy}>
-            <div className="grid grid-cols-2 gap-4">
-              {photos.map((photo) => (
-                <PhotoCard
-                  key={photo.id}
-                  id={photo.id}
-                  url={photo.url}
-                  onDelete={handleDelete}
-                  onView={setViewingUrl}
-                />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
-      )}
+      </header>
 
-      {/* Espaçador — evita que a última linha de fotos fique escondida atrás do botão fixo */}
-      <div className="h-24" />
+      <main className="mx-auto w-full max-w-5xl px-4 py-5 md:px-8 md:py-8">
+        <input
+          ref={inputRef}
+          type="file"
+          accept={TIPOS_ACEITOS.join(",")}
+          onChange={handleArquivoSelecionado}
+          className="sr-only"
+          tabIndex={-1}
+          aria-hidden="true"
+        />
 
-      {/* Barra fixa com o botão de adicionar foto, sempre visível sem precisar rolar */}
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border/60 bg-background/95 px-4 py-4 backdrop-blur supports-backdrop-filter:bg-background/80 md:px-8">
-        <div className="mx-auto max-w-5xl">
-          <Button
-            type="button"
-            onClick={abrirSeletorDeArquivo}
-            disabled={isUploading}
-            variant="secondary"
-            size="lg"
-            className="w-full gap-2 rounded-full py-6 text-base"
+        {isLoading ? (
+          <div className="grid grid-cols-2 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="aspect-square animate-pulse rounded-2xl bg-muted"
+              />
+            ))}
+          </div>
+        ) : photos.length === 0 ? (
+          <p className="py-10 text-center text-sm text-muted-foreground">
+            Nenhuma foto adicionada ainda.
+          </p>
+        ) : (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
           >
-            <Plus className="size-4" />
-            {isUploading ? "Enviando..." : "Adicionar foto"}
-          </Button>
-        </div>
-      </div>
+            <SortableContext
+              items={photos.map((p) => p.id)}
+              strategy={rectSortingStrategy}
+            >
+              <div className="grid grid-cols-2 gap-4">
+                {photos.map((photo) => (
+                  <PhotoCard
+                    key={photo.id}
+                    id={photo.id}
+                    url={photo.url}
+                    onDelete={handleDelete}
+                    onView={setViewingUrl}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        )}
 
-      {viewingUrl && (
-        <PhotoViewer url={viewingUrl} onClose={() => setViewingUrl(null)} />
-      )}
-    </AdminShell>
+        {/* Espaçador — evita que a última linha de fotos fique escondida atrás do botão fixo */}
+        <div className="h-24" />
+
+        {/* Barra fixa com o botão de adicionar foto, sempre visível sem precisar rolar */}
+        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border/60 bg-background/95 px-4 py-4 backdrop-blur supports-backdrop-filter:bg-background/80 md:px-8">
+          <div className="mx-auto max-w-5xl">
+            <Button
+              type="button"
+              onClick={abrirSeletorDeArquivo}
+              disabled={isUploading}
+              variant="secondary"
+              size="lg"
+              className="w-full gap-2 rounded-full py-6 text-base"
+            >
+              <Plus className="size-4" />
+              {isUploading ? "Enviando..." : "Adicionar foto"}
+            </Button>
+          </div>
+        </div>
+
+        {viewingUrl && (
+          <PhotoViewer url={viewingUrl} onClose={() => setViewingUrl(null)} />
+        )}
+      </main>
+    </SidebarInset>
   );
 }
