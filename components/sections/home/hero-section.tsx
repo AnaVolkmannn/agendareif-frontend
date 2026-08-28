@@ -1,13 +1,10 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Menu } from "lucide-react";
 import { ModeToggle } from "@/components/theme/mode-toggle";
 
 export function HeroSection() {
   return (
     <section className="bg-background text-foreground px-6 pb-10 pt-6 md:px-12 lg:px-20">
-      {/* Nav */}
-      {/* Nav */}
       <div className="mx-auto flex max-w-6xl items-center">
         <ModeToggle />
       </div>
@@ -29,7 +26,7 @@ export function HeroSection() {
         </p>
 
         <Button
-          render={<Link href="/pages/professional">Agendar agora</Link>}
+          render={<Link href="/pages/client/select-professional">Agendar agora</Link>}
           size="lg"
           variant="secondary"
           className="mt-6 w-full rounded-xl py-7 text-lg transition hover:bg-primary hover:text-primary-foreground md:mx-auto md:w-auto md:px-16 md:py-8 md:text-xl"

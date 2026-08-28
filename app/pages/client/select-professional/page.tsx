@@ -43,7 +43,7 @@ export default function SelecProfissionalPage() {
       profissionalNome: profissional.nome,
     });
     markNavigatedWithinApp();
-    router.push(`/pages/service?${params.toString()}`);
+    router.push(`/pages/client/select-service?${params.toString()}`);
   }
 
   return (

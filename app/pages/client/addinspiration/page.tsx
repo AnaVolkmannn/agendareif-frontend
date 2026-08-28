@@ -75,7 +75,7 @@ function SelecInspiracaoContent() {
     const params = buildParamsBase();
     params.set("temInspiracao", "false");
     markNavigatedWithinApp();
-    router.push(`/pages/confirmacao?${params.toString()}`);
+    router.push(`/pages/client/register?${params.toString()}`);
   }
 
   async function handleContinuar() {
@@ -89,7 +89,7 @@ function SelecInspiracaoContent() {
       params.set("temInspiracao", "true");
       params.set("imagemUrl", resultado.url);
       markNavigatedWithinApp();
-      router.push(`/pages/confirmacao?${params.toString()}`);
+      router.push(`/pages/client/confirmacao?${params.toString()}`);
     } catch {
       setErro("Não foi possível enviar a imagem. Tente novamente.");
     } finally {
@@ -100,7 +100,7 @@ function SelecInspiracaoContent() {
   return (
     <BookingShell>
       <header className="mb-2 flex items-center">
-        <BackButton fallbackHref="/pages/scheduling" />
+        <BackButton fallbackHref="/pages/client/select-scheduling" />
       </header>
 
       <h1 className="mb-0.5 mt-2 font-glacial text-xl font-extrabold md:text-2xl">

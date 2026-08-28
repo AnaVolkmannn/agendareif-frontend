@@ -96,7 +96,7 @@ export function CalendarMonth({
                 isSelected
                   ? "bg-primary text-primary-foreground"
                   : isAvailable
-                    ? "text-foreground hover:bg-muted"
+                    ? "cursor-pointer text-foreground hover:bg-muted"
                     : "cursor-default text-muted-foreground/40"
               }`}
             >
