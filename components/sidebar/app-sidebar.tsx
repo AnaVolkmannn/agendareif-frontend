@@ -2,10 +2,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CalendarCheck2, Users } from "lucide-react";
+import { ModeToggle } from "../theme/mode-toggle";
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -13,7 +15,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
+
 
 interface NavItem {
   href: string;
@@ -32,13 +36,12 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="px-3 py-3">
-        <span className="px-1 font-glacial text-lg font-extrabold leading-none">
+      <SidebarHeader className="flex flex-row items-center justify-between px-3 py-3 group-data-[collapsible=icon]:justify-center">
+        <span className="truncate px-1 font-glacial text-lg font-extrabold leading-none group-data-[collapsible=icon]:hidden">
           agendareif
         </span>
+        <SidebarTrigger className="hidden shrink-0 md:inline-flex" />
       </SidebarHeader>
-
-      <SidebarSeparator />
 
       <SidebarContent className="px-1">
         <SidebarGroup>
@@ -50,14 +53,13 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
+                      render={<Link href={item.href} />}
                       isActive={isActive}
                       tooltip={item.label}
                       className="h-10 gap-3 rounded-lg"
                     >
-                      <Link href={item.href}>
-                        <Icon className="size-4 shrink-0" />
-                        <span className="truncate">{item.label}</span>
-                      </Link>
+                      <Icon className="size-4 shrink-0" />
+                      <span className="truncate">{item.label}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
@@ -66,6 +68,12 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      <SidebarFooter>
+        <div className="mx-auto flex max-w-6xl items-center">
+          <ModeToggle />
+        </div>
+      </SidebarFooter>
     </Sidebar>
   );
 }
