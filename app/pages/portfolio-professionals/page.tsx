@@ -62,20 +62,28 @@ export default function PortfolioPage() {
   async function handleArquivoSelecionado(
     event: ChangeEvent<HTMLInputElement>,
   ) {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (!file || !TIPOS_ACEITOS.includes(file.type)) return;
+    const arquivosSelecionados = Array.from(event.target.files ?? []);
+   event.target.value = "";
 
-    setIsUploading(true);
-    try {
-      const resultado = await uploadPortfolioPhoto(file);
-      setPhotos((atual) => {
-        const atualizado = [...atual, resultado];
-        reorderPortfolioPhotos(atualizado.map((p) => p.id));
-        return atualizado;
-      });
-    } finally {
-      setIsUploading(false);
+   const arquivosValidos = arquivosSelecionados.filter((file) =>
+     TIPOS_ACEITOS.includes(file.type)
+   );
+   if (arquivosValidos.length === 0) return;
+
+   setIsUploading(true);
+   try {
+     // Envia em paralelo — mais rápido que enviar um por um em sequência
+     const resultados = await Promise.all(
+       arquivosValidos.map((file) => uploadPortfolioPhoto(file))
+     );
+
+     setPhotos((atual) => {
+      const atualizado = [...atual, ...resultados];
+      reorderPortfolioPhotos(atualizado.map((p) => p.id));
+      return atualizado;
+    });
+  } finally {
+    setIsUploading(false);
     }
   }
 
@@ -110,11 +118,12 @@ export default function PortfolioPage() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-5xl px-4 py-5 md:px-8 md:py-8">
+      <main className="mx-auto flex min-h-[calc(100vh-73px)] w-full max-w-5xl flex-col px-4 py-5 md:px-8 md:py-8">
         <input
           ref={inputRef}
           type="file"
           accept={TIPOS_ACEITOS.join(",")}
+          multiple
           onChange={handleArquivoSelecionado}
           className="sr-only"
           tabIndex={-1}
@@ -122,7 +131,7 @@ export default function PortfolioPage() {
         />
 
         {isLoading ? (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
@@ -144,7 +153,7 @@ export default function PortfolioPage() {
               items={photos.map((p) => p.id)}
               strategy={rectSortingStrategy}
             >
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 {photos.map((photo) => (
                   <PhotoCard
                     key={photo.id}
@@ -159,11 +168,8 @@ export default function PortfolioPage() {
           </DndContext>
         )}
 
-        {/* Espaçador — evita que a última linha de fotos fique escondida atrás do botão fixo */}
-        <div className="h-24" />
-
         {/* Barra fixa com o botão de adicionar foto, sempre visível sem precisar rolar */}
-        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border/60 bg-background/95 px-4 py-4 backdrop-blur supports-backdrop-filter:bg-background/80 md:px-8">
+        <div className="sticky bottom-0 z-20 -mx-4 mt-auto border-t border-border/60 bg-background/95 px-4 py-4 backdrop-blur supports-backdrop-filter:bg-background/80 md:-mx-8 md:px-8">
           <div className="mx-auto max-w-5xl">
             <Button
               type="button"
@@ -171,7 +177,7 @@ export default function PortfolioPage() {
               disabled={isUploading}
               variant="secondary"
               size="lg"
-              className="w-full gap-2 rounded-full py-6 text-base"
+              className="h-11 w-full gap-2 rounded-lg text-[15px] font-semibold"
             >
               <Plus className="size-4" />
               {isUploading ? "Enviando..." : "Adicionar foto"}
