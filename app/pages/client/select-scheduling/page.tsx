@@ -90,7 +90,7 @@ function SchedulingContent() {
     params.set("hora", selectedTime);
 
     markNavigatedWithinApp();
-    router.push(`/pages/addinspiration?${params.toString()}`);
+    router.push(`/pages/client/addinspiration?${params.toString()}`);
   }
 
   const formattedSelectedDate = selectedDay
@@ -100,7 +100,7 @@ function SchedulingContent() {
   return (
     <BookingShell>
       <header className="mb-2 flex items-center">
-        <BackButton fallbackHref="/pages/service" />
+        <BackButton fallbackHref="/pages/client/select-service" />
       </header>
 
       <h1 className="mb-0.5 mt-2 font-glacial text-xl font-extrabold md:text-2xl">

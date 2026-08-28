@@ -76,7 +76,7 @@ function ServiceSelectionContent() {
     const query = params.toString();
     if (query === searchParams.toString()) return;
 
-    router.replace(`/pages/service${query ? `?${query}` : ""}`, { scroll: false });
+    router.replace(`/pages/client/select-service${query ? `?${query}` : ""}`, { scroll: false });
   }, [selectedId, searchParams, router]);
 
   // Seleção única: clicar em outro card troca a escolha, clicar no já
@@ -96,13 +96,13 @@ function ServiceSelectionContent() {
     params.set("serviceName", chosen.name);
 
     markNavigatedWithinApp();
-    router.push(`/pages/scheduling?${params.toString()}`);
+    router.push(`/pages/client/select-scheduling?${params.toString()}`);
   }
 
   return (
     <BookingShell>
       <header className="mb-2 flex items-center">
-        <BackButton fallbackHref="/pages/professional" />
+        <BackButton fallbackHref="/pages/client/select-professional" />
       </header>
 
       <h1 className="mb-1 mt-2 font-glacial text-2xl font-extrabold md:text-3xl">

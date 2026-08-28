@@ -14,7 +14,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarSeparator,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 
@@ -26,9 +25,9 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/pages/dashboard", label: "Dashboard", icon: CalendarCheck2 },
-  { href: "/pages/manage-professionals", label: "Profissionais", icon: Users },
-  { href: "/pages/portfolio-professionals", label: "Portfólio", icon: Users },
+  { href: "/pages/professional/dashboard", label: "Dashboard", icon: CalendarCheck2 },
+  { href: "/pages/admin/manage-professionals", label: "Profissionais", icon: Users },
+  { href: "/pages/professional/portfolio", label: "Portfólio", icon: Users },
 ];
 
 export function AppSidebar() {

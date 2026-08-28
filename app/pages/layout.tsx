@@ -1,5 +1,5 @@
+//layout que importa a sidebar
 import type { ReactNode } from "react";
-
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
 
