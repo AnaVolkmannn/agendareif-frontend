@@ -64,7 +64,7 @@ export default function LoginPage() {
 
         <h2 className="font-glacial text-xl font-extrabold">Bem-vindo(a)!!</h2>
         <p className="mb-6 text-[13px] text-foreground/70">
-          Faça seu login para acessar a área de administrador
+          Faça seu login para ter acesso ao seu espaço
         </p>
 
         <div className="flex flex-col gap-4">
