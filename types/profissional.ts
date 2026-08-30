@@ -21,3 +21,20 @@ export interface EditarProfissionalInput {
   especialidade: string;
   foto?: File | null;
 }
+
+export interface AtualizarPerfilInput {
+  nome: string;
+  email: string;
+  whatsapp: string;
+  foto?: File | null;
+}
+
+export interface AlterarSenhaInput {
+  senhaAtual: string;
+  novaSenha: string;
+}
+
+export interface AlterarSenhaResult {
+  sucesso: boolean;
+  mensagem?: string;
+}

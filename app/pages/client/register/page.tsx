@@ -8,9 +8,10 @@ import { BackButton } from "@/components/sections/booking/back-button";
 import { BookingShell } from "@/components/sections/booking/booking-shell";
 import { BookingSummary } from "@/components/sections/confirmation/booking-summary";
 import { ClientForm } from "@/components/sections/confirmation/client-form";
+import { PhotoViewer } from "@/components/sections/portfolio-professionals/photo-viewer";
 import { confirmarAgendamento, getServicoContratado } from "@/lib/api/agendamento";
 import { formatarDataHora } from "@/lib/format";
-import { validarFormulario, mascararTelefone } from "@/lib/validations";
+import { validarFormulario, sanitizarNome, sanitizarObservacao } from "@/lib/validations";
 import type {
   CamposInvalidos,
   DadosCliente,
@@ -21,6 +22,7 @@ const DADOS_INICIAIS: DadosCliente = {
   nomeCompleto: "",
   email: "",
   telefone: "",
+  observacao: "",
 };
 
 export default function ConfirmacaoPage() {
@@ -37,10 +39,13 @@ function ConfirmacaoContent() {
   const profissionalNome = searchParams.get("profissionalNome") ?? "—";
   const serviceName = searchParams.get("serviceName");
   const temInspiracao = searchParams.get("temInspiracao") === "true";
+  const imagemUrlParam = searchParams.get("imagemUrl");
   const data = searchParams.get("data");
   const hora = searchParams.get("hora");
 
-  const [servico, setServico] = useState<string | null>(null);
+  const [servicoMock, setServicoMock] = useState<string | null>(null);
+  const [inspiracaoRemovida, setInspiracaoRemovida] = useState(false);
+  const [fotoAmpliada, setFotoAmpliada] = useState(false);
   const [dados, setDados] = useState<DadosCliente>(DADOS_INICIAIS);
   const [erros, setErros] = useState<CamposInvalidos>({});
   const [status, setStatus] = useState<StatusConfirmacao>("idle");
@@ -48,18 +53,20 @@ function ConfirmacaoContent() {
 
   useEffect(() => {
     // Serviços escolhidos na etapa de seleção chegam pela URL. Se não vierem
-    // (ex.: acesso direto), cai no mock para não quebrar a tela.
-    if (serviceName) {
-      setServico(serviceName);
-      return;
-    }
-    getServicoContratado().then(setServico);
+    // (ex.: acesso direto), busca o mock só nesse caso.
+    if (serviceName) return;
+    getServicoContratado().then(setServicoMock);
   }, [serviceName]);
 
+  const servico = serviceName ?? servicoMock;
+
   function handleCampoChange(campo: keyof DadosCliente, valor: string) {
-    const valorFinal = campo === "telefone" ? mascararTelefone(valor) : valor;
+    let valorFinal = valor;
+    if (campo === "nomeCompleto") valorFinal = sanitizarNome(valor);
+    else if (campo === "observacao") valorFinal = sanitizarObservacao(valor);
+
     setDados((atual) => ({ ...atual, [campo]: valorFinal }));
-    if (erros[campo]) {
+    if (campo in erros && erros[campo as keyof CamposInvalidos]) {
       setErros((atual) => ({ ...atual, [campo]: undefined }));
     }
   }
@@ -83,6 +90,7 @@ function ConfirmacaoContent() {
   }
 
   const dataHoraFormatada = formatarDataHora(data, hora);
+  const temInspiracaoEfetiva = temInspiracao && !!imagemUrlParam && !inspiracaoRemovida;
 
   if (status === "sucesso") {
     return (
@@ -101,7 +109,7 @@ function ConfirmacaoContent() {
   return (
     <BookingShell>
       <header className="mb-2 flex items-center">
-        <BackButton fallbackHref="/pages/addinspiration" />
+        <BackButton fallbackHref="/pages/client/addinspiration" />
       </header>
 
       <h1 className="mb-1 mt-2 font-glacial text-2xl font-extrabold md:text-3xl">
@@ -116,8 +124,11 @@ function ConfirmacaoContent() {
           profissionalNome,
           servico: servico ?? "Carregando…",
           dataHora: dataHoraFormatada,
-          inspiracaoLabel: temInspiracao ? "Imagem enviada" : "Nenhuma",
+          inspiracaoLabel: temInspiracaoEfetiva ? "Imagem enviada" : "Nenhuma",
+          imagemUrl: temInspiracaoEfetiva ? imagemUrlParam ?? undefined : undefined,
         }}
+        onAbrirFotoInspiracao={() => setFotoAmpliada(true)}
+        onRemoverInspiracao={() => setInspiracaoRemovida(true)}
       />
 
       <ClientForm
@@ -128,6 +139,10 @@ function ConfirmacaoContent() {
         onCampoChange={handleCampoChange}
         onSubmit={handleSubmit}
       />
+
+      {fotoAmpliada && imagemUrlParam && (
+        <PhotoViewer url={imagemUrlParam} onClose={() => setFotoAmpliada(false)} />
+      )}
     </BookingShell>
   );
 }

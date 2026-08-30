@@ -5,6 +5,8 @@ const TELEFONE_REGEX = /^\(\d{2}\) 9\d{4}-\d{4}$/;
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+export const OBSERVACAO_MAX_LENGTH = 300;
+
 /**
  * Aplica a máscara (ddd) 9xxxx-xxxx enquanto o usuário digita,
  * removendo qualquer caractere que não seja número.
@@ -16,6 +18,51 @@ export function mascararTelefone(valorBruto: string): string {
   if (numeros.length <= 2) return `(${numeros}`;
   if (numeros.length <= 7) return `(${numeros.slice(0, 2)}) ${numeros.slice(2)}`;
   return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`;
+}
+
+/** Conta quantos dígitos existem antes de uma posição do texto. */
+export function contarDigitos(valor: string): number {
+  return (valor.match(/\d/g) ?? []).length;
+}
+
+/**
+ * Dado o telefone já mascarado, encontra a posição do cursor logo após
+ * o N-ésimo dígito. Usado para manter o cursor no lugar certo quando o
+ * usuário digita/apaga no meio do número (sem isso, o cursor "pula"
+ * pro final toda vez que a máscara é recalculada).
+ */
+export function posicaoAposNDigitos(mascarado: string, n: number): number {
+  if (n <= 0) {
+    const indice = mascarado.search(/\d/);
+    return indice === -1 ? mascarado.length : indice;
+  }
+  let contagem = 0;
+  for (let i = 0; i < mascarado.length; i++) {
+    if (/\d/.test(mascarado[i])) {
+      contagem++;
+      if (contagem === n) return i + 1;
+    }
+  }
+  return mascarado.length;
+}
+
+/** Remove números e símbolos, mantendo apenas letras (com acento), espaço, hífen e apóstrofo. */
+export function sanitizarNome(valor: string): string {
+  return valor.replace(/[^\p{L}\s'-]/gu, "");
+}
+
+// Detecta URLs (http/https/www) e domínios "soltos" tipo instagram.com/fulano
+const LINK_REGEX =
+  /\b((https?:\/\/|www\.)\S+|\S+\.(com|com\.br|net|org|io|co|app|dev|xyz|info|link|shop|store|me|gg)(\/\S*)?)\b/gi;
+
+/** Remove qualquer link/URL do texto. */
+export function removerLinks(texto: string): string {
+  return texto.replace(LINK_REGEX, "").replace(/\s{2,}/g, " ");
+}
+
+/** Aplica remoção de links e limite de caracteres na observação do cliente. */
+export function sanitizarObservacao(valor: string): string {
+  return removerLinks(valor).slice(0, OBSERVACAO_MAX_LENGTH);
 }
 
 export function validarEmail(email: string): boolean {

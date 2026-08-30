@@ -3,12 +3,14 @@ export interface ResumoAgendamento {
   servico: string;
   dataHora: string;
   inspiracaoLabel: string;
+  imagemUrl?: string;
 }
  
 export interface DadosCliente {
   nomeCompleto: string;
   email: string;
   telefone: string;
+  observacao: string;
 }
  
 export interface CamposInvalidos {

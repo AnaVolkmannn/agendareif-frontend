@@ -89,7 +89,7 @@ function SelecInspiracaoContent() {
       params.set("temInspiracao", "true");
       params.set("imagemUrl", resultado.url);
       markNavigatedWithinApp();
-      router.push(`/pages/client/confirmacao?${params.toString()}`);
+      router.push(`/pages/client/register?${params.toString()}`);
     } catch {
       setErro("Não foi possível enviar a imagem. Tente novamente.");
     } finally {
