@@ -42,7 +42,7 @@ export function TimeSlotGrid({
             className={`h-11 rounded-xl border text-sm font-medium transition ${
               isSelected
                 ? "border-primary bg-primary text-primary-foreground"
-                : "cursor-pointer border-border bg-white text-black hover:border-primary/50"
+                : "cursor-pointer border-border bg-input text-foreground hover:border-primary/50"
             }`}
           >
             {time}

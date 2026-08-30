@@ -19,15 +19,14 @@ export function ServiceCard({ service, selected, onSelect }: ServiceCardProps) {
       onClick={() => onSelect(service)}
       aria-pressed={selected}
       className={cn(
-        "flex w-full items-center justify-between gap-4 rounded-3xl bg-secondary p-5 text-left text-secondary-foreground transition",
-        "hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)]",
+        "flex w-full items-center justify-between gap-4 rounded-3xl bg-input p-5 text-left text-foreground transition",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         selected && "ring-2 ring-white ring-offset-2 ring-offset-background"
       )}
     >
       <div className="min-w-0">
         <h2 className="font-glacial text-base font-bold md:text-lg">{service.name}</h2>
-        <p className="mt-0.5 text-[13px] text-secondary-foreground/80 md:text-sm">
+        <p className="text-[13px] text-foreground/70 md:text-sm">
           {formatPrice(service.price)}
         </p>
       </div>
