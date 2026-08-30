@@ -59,7 +59,7 @@ function DialogContent({
             <DialogPrimitive.Close
               data-slot="dialog-close"
               aria-label="Fechar"
-              className="absolute right-4 top-4 flex size-7 items-center justify-center rounded-full text-foreground/60 outline-none transition hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+              className="absolute right-4 top-4 flex size-7 items-center justify-center cursor-pointer rounded-full text-foreground/60 outline-none transition hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
             >
               <X className="size-4" />
             </DialogPrimitive.Close>

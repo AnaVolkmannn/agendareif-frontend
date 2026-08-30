@@ -38,9 +38,9 @@ export function ProfessionalListItem({
           size="icon"
           onClick={() => onEditar(profissional)}
           aria-label={`Editar ${profissional.nome}`}
-          className="text-primary hover:text-primary-hover"
+          className="text-muted-foreground hover:text-secondary-hover"
         >
-          <Pencil className="size-[18px]" />
+          <Pencil className="size-4.5" />
         </Button>
         <Button
           type="button"
@@ -50,7 +50,7 @@ export function ProfessionalListItem({
           aria-label={`Excluir ${profissional.nome}`}
           className="text-destructive hover:text-destructive/70"
         >
-          <Trash2 className="size-[18px]" />
+          <Trash2 className="size-4.5" />
         </Button>
       </div>
     </li>
