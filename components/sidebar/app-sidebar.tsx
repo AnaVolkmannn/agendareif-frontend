@@ -29,7 +29,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/pages/admin/manage-professionals", label: "Profissionais", icon: Users },
   { href: "/pages/professional/portfolio", label: "Portfólio", icon: Users },
   { href: "/pages/professional/profile", label: "Meu perfil", icon: UserRound },
-  { href: "/pages/login", label: "Área do profissional / admin", icon: Users,},
+  { href: "/pages/login", label: "Login", icon: Users,},
 ];
 
 export function AppSidebar() {
@@ -38,9 +38,14 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="flex flex-row items-center justify-between px-3 py-3 group-data-[collapsible=icon]:justify-center">
-        <span className="truncate px-1 font-glacial text-lg font-extrabold leading-none group-data-[collapsible=icon]:hidden">
-          agendareif
-        </span>
+        <div className="flex flex-col group-data-[collapsible=icon]:hidden">
+          <span className="truncate px-1 font-barbra text-xl leading-none dark:text-primary">
+            Reif
+          </span>
+          <span className="truncate px-1 font-barbra text-lg leading-none">
+            Beauty Studio
+          </span>
+        </div>
         <SidebarTrigger className="hidden shrink-0 md:inline-flex" />
       </SidebarHeader>
 

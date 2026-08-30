@@ -174,7 +174,6 @@ export default function PortfolioPage() {
               type="button"
               onClick={abrirSeletorDeArquivo}
               disabled={isUploading}
-              variant="secondary"
               size="lg"
               className="h-11 w-full gap-2 rounded-lg text-[15px] font-semibold"
             >
