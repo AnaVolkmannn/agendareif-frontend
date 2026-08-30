@@ -19,7 +19,7 @@ export function BookingSummary({
       <SummaryDivider />
       <SummaryItem icon={<Tag className="size-5" />} label="Serviço" value={resumo.servico} />
       <SummaryDivider />
-      <SummaryItem icon={<CalendarClock className="size-5" />} label="Data & Horas" value={resumo.dataHora} />
+      <SummaryItem icon={<CalendarClock className="size-5" />} label="Data & Hora" value={resumo.dataHora} />
       <SummaryDivider />
       <InspiracaoItem
         label={resumo.inspiracaoLabel}

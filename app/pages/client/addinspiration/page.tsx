@@ -121,15 +121,16 @@ function SelecInspiracaoContent() {
         aria-hidden="true"
       />
 
-      <button
+      <Button
         type="button"
+        variant="outline"
         onClick={abrirSeletorDeArquivo}
-        className="flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-primary bg-white px-4 py-10 text-primary transition hover:bg-white/95 md:py-14"
+        className="flex h-auto flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-primary bg-input px-4 py-10 transition hover:bg-input/80 md:py-14"
       >
         <Upload className="mb-1 size-9 md:size-11" strokeWidth={1.6} />
-        <span className="text-[15px] font-bold md:text-base">Adicionar foto</span>
-        <span className="text-xs text-primary/70">PNG, JPG - Max. 10 MB</span>
-      </button>
+        <span className="text-[15px] font-bold">Adicionar foto</span>
+        <span className="text-xs">PNG, JPG - Max. 10 MB</span>
+      </Button>
 
       {erro && (
         <p className="mt-3 text-[13px] text-red-300" role="alert">
