@@ -15,7 +15,7 @@ function buildWhatsappLink(whatsapp: string) {
 
 export function ProfessionalCard({ profissional, onEscolher }: ProfessionalCardProps) {
   return (
-    <article className="flex h-full min-h-[132px] gap-4 rounded-3xl bg-secondary p-4 text-secondary-foreground md:min-h-[140px]">
+    <article className="flex h-full min-h-[132px] gap-4 rounded-3xl bg-input p-4 text-secondary-foreground md:min-h-[140px]">
       <div className="h-[78px] w-[78px] shrink-0 overflow-hidden rounded-xl bg-white md:h-24 md:w-24">
         {profissional.fotoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element -- URL mockada/externa, sem domínio configurado em next.config.ts
@@ -28,9 +28,9 @@ export function ProfessionalCard({ profissional, onEscolher }: ProfessionalCardP
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <h2 className="font-glacial text-base font-bold md:text-lg">{profissional.nome}</h2>
+        <h2 className="font-glacial text-foreground font-bold md:text-lg">{profissional.nome}</h2>
 
-        <p className="mb-3 mt-1 text-[13px] leading-snug text-secondary-foreground/80 md:text-sm">
+        <p className="mb-3 mt-1 text-[13px] leading-snug text-foreground/60 md:text-sm">
           {profissional.especialidade}
         </p>
 
@@ -40,7 +40,7 @@ export function ProfessionalCard({ profissional, onEscolher }: ProfessionalCardP
             onClick={() => onEscolher(profissional)}
             className="h-11 w-full rounded-xl text-[14px] font-semibold sm:flex-1"
           >
-            Escolher
+            Selecionar
           </Button>
 
           <Button
