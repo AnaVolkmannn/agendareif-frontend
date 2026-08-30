@@ -29,16 +29,6 @@ import {
 } from "@/lib/validations";
 import type { Profissional } from "@/types/profissional";
 
-// Campo sempre branco, independente do tema — mesmo padrão usado no login
-// e no formulário de confirmação, pra se destacar do fundo.
-const CAMPO_CLASS =
-  "h-12 rounded-xl border-black/10 bg-white px-3.5 text-sm text-neutral-900 placeholder:text-neutral-500 dark:border-black/10 dark:bg-white dark:text-neutral-900 dark:placeholder:text-neutral-500";
-
-// Campos de senha usam o mesmo "rosado" já usado nos filtros do dashboard,
-// pra diferenciar visualmente da seção de dados pessoais.
-const CAMPO_ROSADO =
-  "h-12 rounded-xl border-secondary/25 bg-rose-50 px-3.5 text-sm text-neutral-900 placeholder:text-neutral-500 dark:border-secondary/25 dark:bg-rose-50 dark:text-neutral-900 dark:placeholder:text-neutral-500";
-
 /** Remove o DDI (55) do whatsapp salvo e aplica a máscara (ddd) 9xxxx-xxxx. */
 function digitosParaTelefoneMascarado(digitos: string): string {
   const semDdi = digitos.length > 11 ? digitos.slice(-11) : digitos;
@@ -234,7 +224,6 @@ export default function ProfilePage() {
                   value={nome}
                   onChange={(e) => setNome(e.target.value)}
                   aria-invalid={!!erroDados && !nome.trim()}
-                  className={CAMPO_CLASS}
                 />
               </div>
 
@@ -247,7 +236,6 @@ export default function ProfilePage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   aria-invalid={!!erroDados && !validarEmail(email)}
-                  className={CAMPO_CLASS}
                 />
               </div>
 
@@ -261,7 +249,6 @@ export default function ProfilePage() {
                   value={whatsapp}
                   onChange={handleWhatsappChange}
                   aria-invalid={!!erroDados && !validarTelefone(whatsapp)}
-                  className={CAMPO_CLASS}
                 />
               </div>
             </div>
@@ -298,7 +285,7 @@ export default function ProfilePage() {
               onOpenChange={setSenhaAberta}
               className="mt-6 rounded-xl border border-border/60 bg-card"
             >
-              <CollapsibleTrigger className="flex h-12 w-full items-center justify-between px-4 text-[15px] font-semibold">
+              <CollapsibleTrigger className="flex h-12 w-full items-center justify-between px-4 text-[15px] font-semibold cursor-pointer">
                 Mudar senha
                 <ChevronDown
                   className={`size-4 text-muted-foreground transition-transform ${
@@ -319,7 +306,6 @@ export default function ProfilePage() {
                       onChange={(e) => setSenhaAtual(e.target.value)}
                       onKeyDown={handleSenhaKeyDown}
                       aria-invalid={!!erroSenha}
-                      className={CAMPO_ROSADO}
                     />
                   </div>
 
@@ -333,7 +319,6 @@ export default function ProfilePage() {
                       onChange={(e) => setNovaSenha(e.target.value)}
                       onKeyDown={handleSenhaKeyDown}
                       aria-invalid={!!erroSenha}
-                      className={CAMPO_ROSADO}
                     />
                   </div>
 
@@ -367,14 +352,15 @@ export default function ProfilePage() {
               </CollapsibleContent>
             </Collapsible>
 
-            <button
+            <Button
               type="button"
+              variant="link"
               onClick={handleSairDaConta}
-              className="mx-auto mt-6 flex w-fit items-center gap-1.5 text-[13px] font-semibold text-primary hover:underline"
+              className="mx-auto mt-6 flex h-auto w-fit items-center gap-1.5 p-0 text-[13px] font-semibold text-primary"
             >
               <LogOut className="size-3.5" />
               Sair da conta
-            </button>
+            </Button>
           </>
         )}
       </main>

@@ -68,7 +68,7 @@ export function ProfileAvatarField({
         type="button"
         onClick={() => inputRef.current?.click()}
         aria-label="Trocar foto de perfil"
-        className="absolute bottom-0 right-0 flex size-7 items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground shadow-sm transition hover:bg-primary/85"
+        className="absolute bottom-0 right-0 flex size-7 items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground shadow-sm transition hover:bg-primary/85 cursor-pointer"
       >
         <Camera className="size-3.5" />
       </button>
