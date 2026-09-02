@@ -32,3 +32,31 @@ export async function getAgendaDoDia(): Promise<Appointment[]> {
 export async function cancelarAgendamento(id: string): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, 200));
 }
+
+/**
+ * TODO: substituir pela chamada real.
+ * Endpoint esperado: GET /api/agenda?data=2026-09-08
+ */
+export async function getAgendaPorData(date: Date): Promise<Appointment[]> {
+   await new Promise((resolve) => setTimeout(resolve, 300));
+
+   // MOCK — dia 1 de setembro fica sem nenhum agendamento
+   const isPrimeiroDeSetembro = date.getDate() === 1 && date.getMonth() === 8;
+   if (isPrimeiroDeSetembro) return [];
+   return getAgendaDoDia(); // MOCK — reaproveita a mesma lista de exemplo pros demais dias
+}
+
+/**
+ * TODO: substituir pela chamada real.
+ * Endpoint esperado: GET /api/agenda/dias-com-agendamento?year=2026&month=8
+ */
+export async function getDiasComAgendamento(
+  year: number,
+  month: number
+): Promise<number[]> {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  return Array.from({ length: daysInMonth }, (_, i) => i + 1).filter(
+    (d) => d % 2 === 0 // MOCK — remove quando ligar na API real
+  );
+}
