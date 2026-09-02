@@ -7,6 +7,7 @@ import { BackButton } from "@/components/sections/booking/back-button";
 import { BookingShell } from "@/components/sections/booking/booking-shell";
 import { Button } from "@/components/ui/button";
 import { ServiceCard } from "@/components/sections/service/service-card";
+import { ServicePhotosDialog } from "@/components/sections/service/service-photos-dialog";
 import { markNavigatedWithinApp } from "@/lib/app-nav-state";
 import { getServices } from "@/app/mocks/services-mock";
 import type { Service } from "@/types/service";
@@ -33,6 +34,7 @@ function ServiceSelectionContent() {
   // Se a tela for reaberta com o serviço já na URL (voltar/refresh/link
   // compartilhado), a seleção anterior volta marcada.
   const [selectedId, setSelectedId] = useState<string | null>(serviceIdFromUrl);
+  const [fotosDoServico, setFotosDoServico] = useState<Service | null>(null);
 
   // Busca a lista simulando a requisição da API. Não mexe no status aqui
   // dentro: o estado inicial já é "loading" e o retry cuida do próprio reset.
@@ -125,9 +127,9 @@ function ServiceSelectionContent() {
           </p>
           <Button
             type="button"
-            variant="ghost"
+            variant="link"
             onClick={handleRetry}
-            className="mt-2 h-auto px-0 text-sm font-semibold text-foreground underline underline-offset-4 hover:bg-transparent"
+            className="mt-2 h-auto px-0 text-sm font-semibold text-foreground underline"
           >
             Tentar novamente
           </Button>
@@ -146,6 +148,7 @@ function ServiceSelectionContent() {
                 service={service}
                 selected={selectedId === service.id}
                 onSelect={selectService}
+                onVerFotos={setFotosDoServico}
               />
             </li>
           ))}
@@ -162,6 +165,13 @@ function ServiceSelectionContent() {
           Continuar
         </Button>
       </div>
+
+      <ServicePhotosDialog
+        service={fotosDoServico}
+        onOpenChange={(open) => {
+          if (!open) setFotosDoServico(null);
+        }}
+      />
     </BookingShell>
   );
 }
