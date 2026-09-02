@@ -28,6 +28,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/pages/professional/dashboard", label: "Dashboard", icon: CalendarCheck2 },
   { href: "/pages/admin/manage-professionals", label: "Profissionais", icon: Users },
   { href: "/pages/professional/portfolio", label: "Portfólio", icon: Users },
+  { href: "/pages/professional/appointment", label: "Agenda", icon: CalendarCheck2 },
   { href: "/pages/professional/profile", label: "Meu perfil", icon: UserRound },
   { href: "/pages/login", label: "Área do profissional / admin", icon: Users,},
 ];
