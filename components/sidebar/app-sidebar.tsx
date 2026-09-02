@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarCheck2, Clock, Scissors, UserRound, Users } from "lucide-react";
+import { CalendarCheck2, Scissors, UserRound, Users } from "lucide-react";
 import { ModeToggle } from "../theme/mode-toggle";
 
 import {
@@ -30,7 +30,6 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/pages/professional/portfolio", label: "Portfólio", icon: Users },
   { href: "/pages/professional/appointment", label: "Agenda", icon: CalendarCheck2 },
   { href: "/pages/professional/services", label: "Meus serviços", icon: Scissors },
-  { href: "/pages/professional/schedule", label: "Ajustar horários", icon: Clock },
   { href: "/pages/professional/profile", label: "Meu perfil", icon: UserRound },
   { href: "/pages/login", label: "Login", icon: Users,},
 ];

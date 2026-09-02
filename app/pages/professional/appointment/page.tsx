@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 import { SidebarInset } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -117,8 +118,8 @@ export default function DashboardPage() {
 
         <div className="sticky bottom-0 z-20 -mx-4 mt-auto border-t border-border/60 bg-background/95 px-4 py-4 backdrop-blur supports-backdrop-filter:bg-background/80 md:-mx-8 md:px-8">
           <Button
-            type="button"
             variant="secondary"
+            render={<Link href="/pages/professional/schedule" />}
             className="h-11 w-full rounded-lg text-[15px] font-semibold"
           >
             Ajustar horários
