@@ -96,6 +96,7 @@ export async function criarExcecao(dados: NovaExcecaoInput): Promise<Excecao> {
     tipo: dados.tipo,
     inicio: dados.tipo === "horario-especial" ? dados.inicio : undefined,
     fim: dados.tipo === "horario-especial" ? dados.fim : undefined,
+    intervalos: dados.tipo === "horario-especial" ? dados.intervalos ?? [] : undefined,
   };
 
   // Uma data só pode ter uma exceção: a nova substitui a anterior.
