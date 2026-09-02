@@ -46,6 +46,14 @@ export function toIsoDate(data: Date): string {
   return `${ano}-${mes}-${dia}`;
 }
 
+/** "2026-05-27" => "27 de maio de 2026". */
+export function formatDataPorExtenso(dataIso: string): string {
+  const [ano, mes, dia] = dataIso.split("-").map(Number);
+  const data = new Date(ano, mes - 1, dia);
+  const mesNome = data.toLocaleDateString("pt-BR", { month: "long" });
+  return `${dia} de ${mesNome} de ${ano}`;
+}
+
 export function formatDataCurta(dataIso: string): string {
   const [ano, mes, dia] = dataIso.split("-");
   return `${dia}/${mes}/${ano}`;

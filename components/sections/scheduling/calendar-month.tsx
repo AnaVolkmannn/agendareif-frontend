@@ -2,6 +2,8 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+import { cn } from "@/lib/utils";
+
 const WEEKDAYS = ["D", "S", "T", "Q", "Q", "S", "S"];
 const MONTHS = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -38,6 +40,7 @@ interface CalendarMonthProps {
   onPrevMonth: () => void;
   onNextMonth: () => void;
   isLoading?: boolean;
+  className?: string;
 }
 
 export function CalendarMonth({
@@ -49,11 +52,12 @@ export function CalendarMonth({
   onPrevMonth,
   onNextMonth,
   isLoading,
+  className,
 }: CalendarMonthProps) {
   const matrix = getMonthMatrix(year, month);
 
   return (
-    <div className="rounded-2xl bg-card p-4 text-card-foreground">
+    <div className={cn("rounded-2xl bg-card p-4 text-card-foreground", className)}>
       <div className="mb-4 flex items-center justify-between">
         <button
           onClick={onPrevMonth}
