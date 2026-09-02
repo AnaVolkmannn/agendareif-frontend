@@ -20,6 +20,34 @@ export function mascararTelefone(valorBruto: string): string {
   return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`;
 }
 
+/**
+ * Aplica a máscara de preço em reais enquanto o usuário digita. Trabalha em
+ * centavos: cada dígito novo entra pela direita, então "8000" vira "80,00".
+ * O símbolo "R$" fica fora do input (é exibido como prefixo do campo).
+ */
+export function mascararPreco(valorBruto: string): string {
+  const numeros = valorBruto.replace(/\D/g, "").slice(0, 9);
+  if (numeros.length === 0) return "";
+
+  const centavos = numeros.padStart(3, "0");
+  const inteiros = Number(centavos.slice(0, -2));
+  return `${inteiros.toLocaleString("pt-BR")},${centavos.slice(-2)}`;
+}
+
+/** Converte o preço mascarado ("1.250,00") para número (1250). */
+export function precoParaNumero(valorMascarado: string): number {
+  const numeros = valorMascarado.replace(/\D/g, "");
+  return numeros ? Number(numeros) / 100 : 0;
+}
+
+/** Converte o número vindo da API (80) para o formato do input ("80,00"). */
+export function numeroParaPreco(valor: number): string {
+  return valor.toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
 /** Conta quantos dígitos existem antes de uma posição do texto. */
 export function contarDigitos(valor: string): number {
   return (valor.match(/\d/g) ?? []).length;
