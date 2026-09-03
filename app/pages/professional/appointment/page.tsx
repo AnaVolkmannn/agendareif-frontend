@@ -185,6 +185,7 @@ export default function DashboardPage() {
           <Button
             render={<Link href="/pages/professional/schedule">Ajustar horários</Link>}
             variant="secondary"
+            render={<Link href="/pages/professional/schedule" />}
             className="h-11 w-full rounded-lg text-[15px] font-semibold"
           />
         </div>
