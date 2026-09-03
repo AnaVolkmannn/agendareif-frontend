@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { CalendarCheck2, Scissors, UserRound, Users } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { CalendarCheck2, Clock, LayoutDashboard, LogOut, Scissors, UserRound, Users } from "lucide-react";
 import { ModeToggle } from "../theme/mode-toggle";
 
 import {
@@ -14,6 +14,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSeparator,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 
@@ -25,10 +26,11 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/pages/professional/dashboard", label: "Dashboard", icon: CalendarCheck2 },
+  { href: "/pages/professional/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/pages/admin/manage-professionals", label: "Profissionais", icon: Users },
   { href: "/pages/professional/portfolio", label: "Portfólio", icon: Users },
   { href: "/pages/professional/appointment", label: "Agenda", icon: CalendarCheck2 },
+  { href: "/pages/professional/schedule", label: "Ajustar horários", icon: Clock },
   { href: "/pages/professional/services", label: "Meus serviços", icon: Scissors },
   { href: "/pages/professional/profile", label: "Meu perfil", icon: UserRound },
   { href: "/pages/login", label: "Login", icon: Users,},
@@ -36,7 +38,11 @@ const NAV_ITEMS: NavItem[] = [
 
 export function AppSidebar() {
   const pathname = usePathname();
-
+  const router = useRouter();
+   function handleSair() {
+     // TODO: limpar sessão/token de autenticação real aqui
+     router.push("/pages/login");
+   }
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="flex flex-row items-center justify-between px-3 py-3 group-data-[collapsible=icon]:justify-center">
@@ -75,6 +81,24 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+      <div className="mx-3 my-2 border-t border-sidebar-border" />
+
+       <SidebarGroup>
+        <SidebarGroupContent>
+           <SidebarMenu>
+             <SidebarMenuItem>
+               <SidebarMenuButton                 
+                onClick={handleSair}
+                 tooltip="Sair"
+                 className="h-10 gap-3 rounded-lg"
+                >
+                 <LogOut className="size-4 shrink-0" />
+                 <span className="truncate">Sair</span>
+               </SidebarMenuButton>
+             </SidebarMenuItem>
+           </SidebarMenu>
+         </SidebarGroupContent>
+       </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter>

@@ -73,6 +73,14 @@ export function ExceptionsSection({
                       ? "Folga"
                       : `Horário especial: ${excecao.inicio} às ${excecao.fim}`}
                   </p>
+                  {excecao.intervalos?.length ? (
+                    <p className="text-xs text-muted-foreground">
+                      Intervalos:{" "}
+                      {excecao.intervalos
+                        .map((i) => `${i.inicio} às ${i.fim}`)
+                        .join(", ")}
+                    </p>
+                  ) : null}
                 </div>
                 <Button
                   type="button"
