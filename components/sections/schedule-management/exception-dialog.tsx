@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CalendarCheck2, Clock, Coffee, Loader2, Moon, Plus, Trash2, X } from "lucide-react";
+import { CalendarCheck2, Clock, Loader2, Moon, X } from "lucide-react";
 
 import {
   Dialog,
@@ -17,7 +17,7 @@ import { TimeSelect } from "@/components/sections/schedule-management/time-selec
 import { criarExcecao } from "@/lib/api/horarios";
 import { formatDataPorExtenso, toIsoDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import type { Excecao, Intervalo, TipoExcecao } from "@/types/horario";
+import type { Excecao, TipoExcecao } from "@/types/horario";
 
 interface ExceptionDialogProps {
   open: boolean;
@@ -52,12 +52,8 @@ export function ExceptionDialog({
   const [tipo, setTipo] = useState<TipoExcecao>("folga");
   const [inicio, setInicio] = useState<string | null>("12:00");
   const [fim, setFim] = useState<string | null>("20:00");
-  const [intervalos, setIntervalos] = useState<Intervalo[]>([]);
   const [erro, setErro] = useState<string | null>(null);
   const [salvando, setSalvando] = useState(false);
-  // Só é preenchido depois que a API confirma. É o que dispara a mensagem de
-  // sucesso — antes disso ela não aparece, senão parece já ter sido salva.
-  const [salva, setSalva] = useState<Excecao | null>(null);
 
   const diasSelecionaveis = useMemo(
     () => getDiasSelecionaveis(ano, mes),
@@ -68,38 +64,11 @@ export function ExceptionDialog({
     ? toIsoDate(new Date(ano, mes, diaSelecionado))
     : null;
 
-  /**
-   * Qualquer edição no formulário derruba a confirmação da exceção anterior:
-   * senão a mensagem de sucesso fica valendo para dados que não são mais os
-   * da tela, e o botão de salvar continua escondido.
-   */
-  function editando() {
-    setSalva(null);
-  }
-
-  function escolherDia(dia: number) {
-    setDiaSelecionado(dia);
-    editando();
-  }
-
-  function escolherTipo(novoTipo: TipoExcecao) {
-    setTipo(novoTipo);
-    editando();
-  }
-
-  function escolherInicio(valor: string) {
-    setInicio(valor);
-    editando();
-  }
-
-  function escolherFim(valor: string) {
-    setFim(valor);
-    editando();
-  }
+  const horarioInvalido =
+    tipo === "horario-especial" && !!inicio && !!fim && inicio >= fim;
 
   function irParaMesAnterior() {
     setDiaSelecionado(null);
-    editando();
     if (mes === 0) {
       setMes(11);
       setAno((atual) => atual - 1);
@@ -110,33 +79,12 @@ export function ExceptionDialog({
 
   function irParaProximoMes() {
     setDiaSelecionado(null);
-    editando();
     if (mes === 11) {
       setMes(0);
       setAno((atual) => atual + 1);
       return;
     }
     setMes((atual) => atual + 1);
-  }
-
-  function adicionarIntervalo() {
-    setIntervalos((atual) => [
-      ...atual,
-      { id: crypto.randomUUID(), inicio: null, fim: null },
-    ]);
-    editando();
-  }
-
-  function atualizarIntervalo(id: string, campo: "inicio" | "fim", valor: string) {
-    setIntervalos((atual) =>
-      atual.map((i) => (i.id === id ? { ...i, [campo]: valor } : i))
-    );
-    editando();
-  }
-
-  function removerIntervalo(id: string) {
-    setIntervalos((atual) => atual.filter((i) => i.id !== id));
-    editando();
   }
 
   function resetForm() {
@@ -146,16 +94,7 @@ export function ExceptionDialog({
     setTipo("folga");
     setInicio("12:00");
     setFim("20:00");
-    setIntervalos([]);
     setErro(null);
-    setSalva(null);
-  }
-
-  /** Fecha limpando o formulário. O botão não pode chamar onOpenChange
-   *  direto, senão pula o reset e o modal reabre com o estado anterior. */
-  function fechar() {
-    resetForm();
-    onOpenChange(false);
   }
 
   async function handleSalvar() {
@@ -172,29 +111,6 @@ export function ExceptionDialog({
         setErro("O horário de início deve ser anterior ao de fim.");
         return;
       }
-
-      if (intervalos.some((i) => !i.inicio || !i.fim)) {
-        setErro("Preencha o início e o fim de todos os intervalos.");
-        return;
-      }
-      if (intervalos.some((i) => i.inicio! >= i.fim!)) {
-        setErro("O início do intervalo deve ser anterior ao fim.");
-        return;
-      }
-      if (intervalos.some((i) => i.inicio! < inicio || i.fim! > fim)) {
-        setErro(`Os intervalos precisam ficar entre ${inicio} e ${fim}.`);
-        return;
-      }
-
-      // Dois intervalos não podem se sobrepor: ordena por início e confere se
-      // cada um começa depois do fim do anterior.
-      const ordenados = [...intervalos].sort((a, b) =>
-        a.inicio!.localeCompare(b.inicio!)
-      );
-      if (ordenados.some((i, idx) => idx > 0 && i.inicio! < ordenados[idx - 1].fim!)) {
-        setErro("Os intervalos não podem se sobrepor.");
-        return;
-      }
     }
 
     setErro(null);
@@ -205,12 +121,10 @@ export function ExceptionDialog({
         tipo,
         inicio: inicio ?? undefined,
         fim: fim ?? undefined,
-        intervalos,
       });
       onCriada(criada);
-      // Não fecha na hora: o modal fica mostrando a confirmação até o
-      // profissional fechar.
-      setSalva(criada);
+      resetForm();
+      onOpenChange(false);
     } catch {
       setErro("Não foi possível salvar a exceção. Tente novamente.");
     } finally {
@@ -255,7 +169,7 @@ export function ExceptionDialog({
               month={mes}
               availableDays={diasSelecionaveis}
               selectedDay={diaSelecionado}
-              onSelectDay={escolherDia}
+              onSelectDay={setDiaSelecionado}
               onPrevMonth={irParaMesAnterior}
               onNextMonth={irParaProximoMes}
               className="bg-transparent px-0 py-2"
@@ -274,7 +188,7 @@ export function ExceptionDialog({
                 type="button"
                 variant={tipo === "folga" ? "default" : "outline"}
                 aria-pressed={tipo === "folga"}
-                onClick={() => escolherTipo("folga")}
+                onClick={() => setTipo("folga")}
                 className={cn(
                   TIPO_BUTTON_BASE,
                   tipo !== "folga" && "text-primary"
@@ -287,7 +201,7 @@ export function ExceptionDialog({
                 type="button"
                 variant={tipo === "horario-especial" ? "default" : "outline"}
                 aria-pressed={tipo === "horario-especial"}
-                onClick={() => escolherTipo("horario-especial")}
+                onClick={() => setTipo("horario-especial")}
                 className={cn(
                   TIPO_BUTTON_BASE,
                   tipo !== "horario-especial" && "text-primary"
@@ -300,81 +214,34 @@ export function ExceptionDialog({
           </section>
 
           {tipo === "horario-especial" && (
-            <div className="flex flex-col gap-3 rounded-lg border border-border px-3 py-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">Início</span>
-                  <TimeSelect
-                    value={inicio}
-                    onChange={escolherInicio}
-                    placeholder="Início"
-                    ariaLabel="Início do horário especial"
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs text-muted-foreground">Fim</span>
-                  <TimeSelect
-                    value={fim}
-                    onChange={escolherFim}
-                    placeholder="Fim"
-                    ariaLabel="Fim do horário especial"
-                  />
-                </div>
+            <div className="grid grid-cols-2 gap-3 rounded-lg border border-border px-3 py-3">
+              <div className="flex flex-col gap-1">
+                <span className="text-xs text-muted-foreground">Início</span>
+                <TimeSelect
+                  value={inicio}
+                  onChange={setInicio}
+                  placeholder="Início"
+                  ariaLabel="Início do horário especial"
+                />
               </div>
-
-              {intervalos.map((intervalo) => (
-                <div key={intervalo.id} className="flex items-center gap-2">
-                  <span className="flex w-11 shrink-0 flex-col items-center gap-0.5 text-[10px] text-muted-foreground">
-                    <Coffee className="size-4" />
-                    Intervalo
-                  </span>
-                  <TimeSelect
-                    value={intervalo.inicio}
-                    onChange={(v) => atualizarIntervalo(intervalo.id, "inicio", v)}
-                    placeholder="Início"
-                    ariaLabel="Início do intervalo"
-                  />
-                  <span className="shrink-0 text-[13px] text-muted-foreground">até</span>
-                  <TimeSelect
-                    value={intervalo.fim}
-                    onChange={(v) => atualizarIntervalo(intervalo.id, "fim", v)}
-                    placeholder="Fim"
-                    ariaLabel="Fim do intervalo"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removerIntervalo(intervalo.id)}
-                    aria-label="Remover intervalo"
-                    className="shrink-0 text-destructive hover:text-destructive/70"
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
-                </div>
-              ))}
-
-              <Button
-                type="button"
-                variant="outline"
-                onClick={adicionarIntervalo}
-                className="h-8 gap-1 self-start rounded-lg px-2.5 text-xs font-semibold text-primary"
-              >
-                <Plus className="size-3.5" />
-                Intervalo
-              </Button>
+              <div className="flex flex-col gap-1">
+                <span className="text-xs text-muted-foreground">Fim</span>
+                <TimeSelect
+                  value={fim}
+                  onChange={setFim}
+                  placeholder="Fim"
+                  ariaLabel="Fim do horário especial"
+                />
+              </div>
             </div>
           )}
 
-          {salva && (
-            <p
-              role="status"
-              className="flex items-center gap-2 rounded-lg bg-emerald-100 px-3 py-2 text-[13px] text-emerald-900"
-            >
+          {dataIso && !horarioInvalido && (
+            <p className="flex items-center gap-2 rounded-lg bg-emerald-100 px-3 py-2 text-[13px] text-emerald-900">
               <CalendarCheck2 className="size-5 shrink-0 text-emerald-700" />
-              {salva.tipo === "folga"
-                ? `Folga cadastrada para ${formatDataPorExtenso(salva.data)}`
-                : `Horário especial cadastrado: ${salva.inicio} às ${salva.fim}, dia ${formatDataPorExtenso(salva.data)}`}
+              {tipo === "folga"
+                ? `Folga cadastrada para ${formatDataPorExtenso(dataIso)}`
+                : `Horário especial cadastrado: ${inicio} às ${fim}, dia ${formatDataPorExtenso(dataIso)}`}
             </p>
           )}
 
@@ -385,32 +252,28 @@ export function ExceptionDialog({
           )}
 
           <div className="flex flex-col gap-2">
-            {/* Depois de salva não faz sentido oferecer "Salvar" de novo nem
-                "Cancelar" algo que já foi gravado: sobra só o fechar. */}
-            {!salva && (
-              <Button
-                type="button"
-                onClick={handleSalvar}
-                disabled={salvando}
-                className="h-11 w-full gap-2 rounded-lg text-[15px] font-semibold"
-              >
-                {salvando ? (
-                  <>
-                    <Loader2 className="size-4 animate-spin" />
-                    Salvando…
-                  </>
-                ) : (
-                  "Salvar exceção"
-                )}
-              </Button>
-            )}
+            <Button
+              type="button"
+              onClick={handleSalvar}
+              disabled={salvando}
+              className="h-11 w-full gap-2 rounded-lg text-[15px] font-semibold"
+            >
+              {salvando ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  Salvando…
+                </>
+              ) : (
+                "Salvar exceção"
+              )}
+            </Button>
             <Button
               type="button"
               variant="outline"
-              onClick={fechar}
+              onClick={() => onOpenChange(false)}
               className="h-11 w-full rounded-lg border-foreground/70 text-[15px] font-semibold"
             >
-              {salva ? "Fechar" : "Cancelar"}
+              Cancelar
             </Button>
           </div>
         </div>

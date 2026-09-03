@@ -34,8 +34,6 @@ export interface Excecao {
   /** Preenchidos apenas quando tipo === "horario-especial". */
   inicio?: string;
   fim?: string;
-  /** Intervalos dentro do horário especial (almoço, café etc). */
-  intervalos?: Intervalo[];
 }
 
 export interface NovaExcecaoInput {
@@ -43,5 +41,4 @@ export interface NovaExcecaoInput {
   tipo: TipoExcecao;
   inicio?: string;
   fim?: string;
-  intervalos?: Intervalo[];
 }

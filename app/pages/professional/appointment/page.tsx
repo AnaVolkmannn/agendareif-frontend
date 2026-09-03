@@ -1,17 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+
 import { SidebarInset } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { AppointmentRow } from "@/components/sections/appointment/appointment-row";
 import { CancelAppointmentModal } from "@/components/sections/appointment/cancel-appointment-modal";
-import { WeekStrip } from "@/components/sections/appointment/week-strip";
-import { MonthCalendar } from "@/components/sections/appointment/month-calendar";
 import {
   cancelarAgendamento,
-  getAgendaPorData,
-  getDiasComAgendamento,
+  getAgendaDoDia,
   type Appointment,
 } from "@/lib/api/agenda";
 
@@ -23,68 +21,33 @@ const PERIODOS: { value: Periodo; label: string }[] = [
   { value: "mes", label: "Mês" },
 ];
 
-function inicioDaSemana(date: Date) {
-  const d = new Date(date);
-  d.setDate(d.getDate() - d.getDay());
-  return d;
-}
-
-function formatarData(date: Date) {
-  return date
-    .toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })
-    .replace(/^\w/, (c) => c.toUpperCase())
-    .replace(" de ", " ");
-}
-
 export default function DashboardPage() {
   const [periodo, setPeriodo] = useState<Periodo>("hoje");
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
-  const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
-
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [diasComAgendamento, setDiasComAgendamento] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingCalendar, setIsLoadingCalendar] = useState(false);
   const [selecionado, setSelecionado] = useState<Appointment | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
 
-  const weekStart = useMemo(() => inicioDaSemana(selectedDate), [selectedDate]);
+  const hoje = new Date();
+
+  const dataExibida = hoje
+    .toLocaleDateString("pt-BR", {
+      weekday: "long",
+      day: "2-digit",
+      month: "long",
+    })
+    .replace(/^\w/, (c) => c.toUpperCase())
+    .replace(" de ", " ");
+
+  const dataFormatada = hoje.toLocaleDateString("pt-BR");
 
   useEffect(() => {
     setIsLoading(true);
-    getAgendaPorData(selectedDate).then((data) => {
+    getAgendaDoDia().then((data) => {
       setAppointments(data);
       setIsLoading(false);
     });
-  }, [selectedDate]);
-
-  useEffect(() => {
-    if (periodo !== "mes") return;
-    setIsLoadingCalendar(true);
-    getDiasComAgendamento(calendarYear, calendarMonth).then((dias) => {
-      setDiasComAgendamento(dias);
-      setIsLoadingCalendar(false);
-    });
-  }, [periodo, calendarYear, calendarMonth]);
-
-  function handlePrevMonth() {
-    if (calendarMonth === 0) {
-      setCalendarMonth(11);
-      setCalendarYear((y) => y - 1);
-    } else {
-      setCalendarMonth((m) => m - 1);
-    }
-  }
-
-  function handleNextMonth() {
-    if (calendarMonth === 11) {
-      setCalendarMonth(0);
-      setCalendarYear((y) => y + 1);
-    } else {
-      setCalendarMonth((m) => m + 1);
-    }
-  }
+  }, [periodo]);
 
   async function handleConfirmarCancelamento() {
     if (!selecionado) return;
@@ -133,31 +96,7 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {periodo === "semana" && (
-          <WeekStrip
-            weekStart={weekStart}
-            selectedDate={selectedDate}
-            diasComAgendamento={diasComAgendamento}
-            onSelectDay={setSelectedDate}
-          />
-        )}
-
-        {periodo === "mes" && (
-          <MonthCalendar
-            year={calendarYear}
-            month={calendarMonth}
-            diasComAgendamento={diasComAgendamento}
-            selectedDay={selectedDate.getDate()}
-            onSelectDay={(day) => setSelectedDate(new Date(calendarYear, calendarMonth, day))}
-            onPrevMonth={handlePrevMonth}
-            onNextMonth={handleNextMonth}
-            isLoading={isLoadingCalendar}
-          />
-        )}
-
-        <p className="mb-3 text-sm font-semibold text-foreground">
-          {formatarData(selectedDate)}
-        </p>
+        <p className="mb-3 text-sm font-semibold text-foreground">{dataExibida}</p>
 
         {isLoading ? (
           <div className="flex flex-col gap-3">
@@ -165,10 +104,6 @@ export default function DashboardPage() {
               <div key={i} className="h-14 animate-pulse rounded-xl bg-muted" />
             ))}
           </div>
-        ) : appointments.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">
-            Sem nenhum agendamento
-          </p>
         ) : (
           <div className="flex flex-col gap-3">
             {appointments.map((appointment) => (
@@ -183,18 +118,19 @@ export default function DashboardPage() {
 
         <div className="sticky bottom-0 z-20 -mx-4 mt-auto border-t border-border/60 bg-background/95 px-4 py-4 backdrop-blur supports-backdrop-filter:bg-background/80 md:-mx-8 md:px-8">
           <Button
-            render={<Link href="/pages/professional/schedule">Ajustar horários</Link>}
             variant="secondary"
             render={<Link href="/pages/professional/schedule" />}
             className="h-11 w-full rounded-lg text-[15px] font-semibold"
-          />
+          >
+            Ajustar horários
+          </Button>
         </div>
       </main>
 
       {selecionado && (
         <CancelAppointmentModal
           appointment={selecionado}
-          formattedDate={selectedDate.toLocaleDateString("pt-BR")}
+          formattedDate={dataFormatada}
           onClose={() => setSelecionado(null)}
           onConfirm={handleConfirmarCancelamento}
           isCancelling={isCancelling}
