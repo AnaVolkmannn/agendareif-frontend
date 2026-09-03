@@ -31,7 +31,11 @@ function inicioDaSemana(date: Date) {
 
 function formatarData(date: Date) {
   return date
-    .toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })
+    .toLocaleDateString("pt-BR", {
+      weekday: "long",
+      day: "2-digit",
+      month: "long",
+    })
     .replace(/^\w/, (c) => c.toUpperCase())
     .replace(" de ", " ");
 }
@@ -96,8 +100,8 @@ export default function DashboardPage() {
         atual.map((a) =>
           a.id === selecionado.id
             ? { ...a, status: "disponivel", service: null, client: null }
-            : a
-        )
+            : a,
+        ),
       );
       setSelecionado(null);
     } finally {
@@ -118,18 +122,15 @@ export default function DashboardPage() {
       <main className="mx-auto flex min-h-[calc(100vh-73px)] w-full max-w-2xl flex-col px-4 py-5 md:px-8 md:py-8">
         <div className="mb-5 flex justify-center gap-2">
           {PERIODOS.map((p) => (
-            <button
+            <Button
               key={p.value}
               type="button"
+              variant={periodo === p.value ? "default" : "secondary"}
               onClick={() => setPeriodo(p.value)}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                periodo === p.value
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-foreground hover:bg-muted/70"
-              }`}
+              className="rounded-full px-4 py-2 text-sm font-semibold"
             >
               {p.label}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -148,7 +149,9 @@ export default function DashboardPage() {
             month={calendarMonth}
             diasComAgendamento={diasComAgendamento}
             selectedDay={selectedDate.getDate()}
-            onSelectDay={(day) => setSelectedDate(new Date(calendarYear, calendarMonth, day))}
+            onSelectDay={(day) =>
+              setSelectedDate(new Date(calendarYear, calendarMonth, day))
+            }
             onPrevMonth={handlePrevMonth}
             onNextMonth={handleNextMonth}
             isLoading={isLoadingCalendar}
@@ -183,9 +186,9 @@ export default function DashboardPage() {
 
         <div className="sticky bottom-0 z-20 -mx-4 mt-auto border-t border-border/60 bg-background/95 px-4 py-4 backdrop-blur supports-backdrop-filter:bg-background/80 md:-mx-8 md:px-8">
           <Button
-            render={<Link href="/pages/professional/schedule">Ajustar horários</Link>}
-            variant="secondary"
-            render={<Link href="/pages/professional/schedule" />}
+            render={
+              <Link href="/pages/professional/schedule">Ajustar horários</Link>
+            }
             className="h-11 w-full rounded-lg text-[15px] font-semibold"
           />
         </div>
