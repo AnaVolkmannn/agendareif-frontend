@@ -120,12 +120,17 @@ export default function SchedulePage() {
 
   return (
     <SidebarInset>
-      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/95 px-4 pb-3 pt-4 backdrop-blur supports-backdrop-filter:bg-background/80 md:px-8">
+      <header className="sticky top-0 z-30 bg-primary px-4 pb-3 pt-4 text-primary-foreground md:px-8">
         <div className="relative flex items-center justify-center">
-          <SidebarTrigger className="absolute left-0 size-9 shrink-0 md:hidden" />
-          <h1 className="text-center font-glacial text-2xl font-extrabold md:text-3xl">
-            Painel de horários
-          </h1>
+          <SidebarTrigger className="absolute left-0 size-9 shrink-0 text-primary-foreground hover:bg-white/10 hover:text-primary-foreground md:hidden" />
+          <div className="text-center">
+            <p className="font-barbra text-2xl leading-tight md:text-3xl">
+              Reif Beauty Studio
+            </p>
+            <p className="text-[13px] text-primary-foreground/80">
+              Painel de horários
+            </p>
+          </div>
         </div>
       </header>
 
