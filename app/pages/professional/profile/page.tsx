@@ -276,8 +276,9 @@ export default function ProfilePage() {
                   value={descricao}
                   onChange={(e) => setDescricao(e.target.value.slice(0, 500))}
                   maxLength={500}
-                  rows={5}
+                  rows={3}
                   className="resize-none rounded-xl"
+                  placeholder="Ex.: Especialista em nail art, manicure e pedicure. Com experiência em..."
                   aria-invalid={!!erroDados && descricao.length > 500}
                 />
               </div>
