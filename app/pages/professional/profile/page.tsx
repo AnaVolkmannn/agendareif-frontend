@@ -9,6 +9,7 @@ import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Collapsible,
   CollapsibleContent,
@@ -49,6 +50,7 @@ export default function ProfilePage() {
   const [email, setEmail] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [foto, setFoto] = useState<File | null>(null);
+  const [descricao, setDescricao] = useState("");
 
   const [erroDados, setErroDados] = useState<string | null>(null);
   const [salvandoDados, setSalvandoDados] = useState(false);
@@ -84,10 +86,15 @@ export default function ProfilePage() {
   function handleWhatsappChange(event: ChangeEvent<HTMLInputElement>) {
     const elemento = event.target;
     const cursorAtual = elemento.selectionStart ?? elemento.value.length;
-    const digitosAntesDoCursor = contarDigitos(elemento.value.slice(0, cursorAtual));
+    const digitosAntesDoCursor = contarDigitos(
+      elemento.value.slice(0, cursorAtual),
+    );
 
     const mascarado = mascararTelefone(elemento.value);
-    cursorDesejadoRef.current = posicaoAposNDigitos(mascarado, digitosAntesDoCursor);
+    cursorDesejadoRef.current = posicaoAposNDigitos(
+      mascarado,
+      digitosAntesDoCursor,
+    );
 
     setWhatsapp(mascarado);
   }
@@ -187,7 +194,10 @@ export default function ProfilePage() {
 
       <main className="mx-auto w-full max-w-sm px-4 py-6 md:py-10">
         {status === "loading" && (
-          <p className="text-center text-sm text-muted-foreground" role="status">
+          <p
+            className="text-center text-sm text-muted-foreground"
+            role="status"
+          >
             Carregando perfil…
           </p>
         )}
@@ -249,6 +259,26 @@ export default function ProfilePage() {
                   value={whatsapp}
                   onChange={handleWhatsappChange}
                   aria-invalid={!!erroDados && !validarTelefone(whatsapp)}
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="perfil-descricao">
+                    Descrição dos meus serviços
+                  </Label>
+                  <span className="text-[12px] text-muted-foreground">
+                    {descricao.length}/500
+                  </span>
+                </div>
+                <Textarea
+                  id="perfil-descricao"
+                  value={descricao}
+                  onChange={(e) => setDescricao(e.target.value.slice(0, 500))}
+                  maxLength={500}
+                  rows={5}
+                  className="resize-none rounded-xl"
+                  aria-invalid={!!erroDados && descricao.length > 500}
                 />
               </div>
             </div>
