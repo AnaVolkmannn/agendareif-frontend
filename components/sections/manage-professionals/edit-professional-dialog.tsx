@@ -69,7 +69,10 @@ export function EditProfessionalDialog({
           <DialogTitle>Editar profissional</DialogTitle>
         </DialogHeader>
 
-        <AvatarUploadField fotoUrlInicial={profissional?.fotoUrl} onFotoChange={setFoto} />
+        <AvatarUploadField
+          fotoUrlInicial={profissional?.fotoUrl}
+          onFotoChange={setFoto}
+        />
 
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
@@ -84,13 +87,20 @@ export function EditProfessionalDialog({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="edit-descricao">Descrição</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="edit-descricao">Descrição</Label>
+              <span className="text-[12px] text-muted-foreground">
+                {descricao.length}/500
+              </span>
+            </div>
             <Textarea
               id="edit-descricao"
               rows={3}
               value={descricao}
-              onChange={(e) => setDescricao(e.target.value)}
+              onChange={(e) => setDescricao(e.target.value.slice(0, 500))}
+              maxLength={500}
               className={FIELD_CLASSES}
+              placeholder="Ex.: Especialista em nail art, manicure e pedicure. Com experiência em..."
             />
           </div>
         </div>

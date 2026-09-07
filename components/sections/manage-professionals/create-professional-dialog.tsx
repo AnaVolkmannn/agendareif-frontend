@@ -15,7 +15,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { AvatarUploadField } from "@/components/sections/manage-professionals/avatar-upload-field";
-import { mascararTelefone, validarEmail, validarTelefone } from "@/lib/validations";
+import {
+  mascararTelefone,
+  validarEmail,
+  validarTelefone,
+} from "@/lib/validations";
 import { criarProfissional } from "@/app/mocks/professionals-mock";
 import type { Profissional } from "@/types/profissional";
 
@@ -58,7 +62,8 @@ export function CreateProfessionalDialog({
     if (!email.trim()) novosErros.email = "Informe o e-mail.";
     else if (!validarEmail(email)) novosErros.email = "E-mail inválido.";
     if (!whatsapp.trim()) novosErros.whatsapp = "Informe o WhatsApp.";
-    else if (!validarTelefone(whatsapp)) novosErros.whatsapp = "Use o formato (ddd) 9xxxx-xxxx.";
+    else if (!validarTelefone(whatsapp))
+      novosErros.whatsapp = "Use o formato (ddd) 9xxxx-xxxx.";
 
     setErros(novosErros);
     return Object.keys(novosErros).length === 0;
@@ -70,12 +75,20 @@ export function CreateProfessionalDialog({
     setErroGeral(null);
     setSalvando(true);
     try {
-      const criado = await criarProfissional({ nome, email, whatsapp, descricao, foto });
+      const criado = await criarProfissional({
+        nome,
+        email,
+        whatsapp,
+        descricao,
+        foto,
+      });
       onCriado(criado);
       resetForm();
       onOpenChange(false);
     } catch {
-      setErroGeral("Não foi possível cadastrar o profissional. Tente novamente.");
+      setErroGeral(
+        "Não foi possível cadastrar o profissional. Tente novamente.",
+      );
     } finally {
       setSalvando(false);
     }
@@ -166,12 +179,19 @@ export function CreateProfessionalDialog({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="create-descricao">Descrição</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="create-descricao">Descrição</Label>
+              <span className="text-[12px] text-muted-foreground">
+                {descricao.length}/500
+              </span>
+            </div>
             <Textarea
               id="create-descricao"
               rows={3}
               value={descricao}
-              onChange={(e) => setDescricao(e.target.value)}
+              onChange={(e) => setDescricao(e.target.value.slice(0, 500))}
+              maxLength={500}
+              placeholder="Ex.: Especialista em nail art, manicure e pedicure. Com experiência em..."
               className={FIELD_CLASSES}
             />
           </div>
