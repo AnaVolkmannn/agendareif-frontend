@@ -8,11 +8,23 @@ import { Eye, EyeOff, Lock, Mail, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { autenticar } from "@/lib/api/auth";
+import { useAuth } from "@/auth/AuthContext";
+import { ApiError } from "@/lib/api/client";
 import { validarEmail } from "@/lib/validations";
+
+function mensagemDeErro(err: unknown): string {
+  if (err instanceof ApiError) {
+    if (err.status === 401 || err.status === 403)
+      return "E-mail ou senha inválidos.";
+    return err.message;
+  }
+  // fetch lança TypeError quando a API está fora do ar ou o CORS bloqueou
+  return "Não foi possível conectar ao servidor. Tente novamente.";
+}
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
 
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -31,22 +43,20 @@ export default function LoginPage() {
     setErro(null);
     setCarregando(true);
 
-    const resultado = await autenticar(email, senha);
+    try {
+      const sessao = await login(email, senha);
 
-    setCarregando(false);
-
-    if (!resultado.sucesso) {
-      setErro(resultado.mensagem ?? "Não foi possível entrar. Tente novamente.");
-      return;
-    }
-
-    if (resultado.papel === "admin") {
-      router.push("/pages/admin/manage-professionals");
-    } else {
-      const params = resultado.profissionalId
-        ? `?profissionalId=${resultado.profissionalId}`
-        : "";
-      router.push(`/pages/professional/dashboard${params}`);
+      if (sessao.role === "ADMIN") {
+        router.push("/pages/admin/manage-professionals");
+      } else if (sessao.mustChangePassword) {
+        router.push("/pages/professional/change-password");
+      } else {
+        router.push("/pages/professional/dashboard");
+      }
+    } catch (err) {
+      setErro(mensagemDeErro(err));
+    } finally {
+      setCarregando(false);
     }
   }
 
@@ -65,7 +75,10 @@ export default function LoginPage() {
 
         <div className="flex flex-col gap-4">
           <div>
-            <Label htmlFor="email" className="mb-1.5 block text-sm font-semibold">
+            <Label
+              htmlFor="email"
+              className="mb-1.5 block text-sm font-semibold"
+            >
               E-mail
             </Label>
             <div className="relative">
@@ -84,7 +97,10 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <Label htmlFor="senha" className="mb-1.5 block text-sm font-semibold">
+            <Label
+              htmlFor="senha"
+              className="mb-1.5 block text-sm font-semibold"
+            >
               Senha
             </Label>
             <div className="relative">
@@ -107,7 +123,11 @@ export default function LoginPage() {
                 aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
                 className="absolute right-1 top-1/2 size-7 -translate-y-1/2 text-neutral-500 hover:bg-transparent hover:text-neutral-700"
               >
-                {mostrarSenha ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                {mostrarSenha ? (
+                  <EyeOff className="size-4" />
+                ) : (
+                  <Eye className="size-4" />
+                )}
               </Button>
             </div>
             <div className="mt-1.5 text-right">
