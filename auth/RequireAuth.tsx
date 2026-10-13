@@ -6,10 +6,16 @@ import { useAuth } from "./AuthContext";
 import type { Role } from "@/types/auth";
 
 const ROTAS = {
-  login: "app/pages/login/page.tsx",
+  login: "/pages/login",
   trocaSenha: "/pages/professional/change-password",
-  home: "/",
 };
+
+/** Tela inicial de cada papel (para onde mandar quem entrou na área errada). */
+function homeDe(role: Role): string {
+  return role === "ADMIN"
+    ? "/pages/admin/manage-professionals"
+    : "/pages/professional/dashboard";
+}
 
 interface Props {
   roles?: Role[];
@@ -34,7 +40,8 @@ export default function RequireAuth({
       !allowPasswordChange
     )
       redirectTo = ROTAS.trocaSenha;
-    else if (roles && !roles.includes(session.role)) redirectTo = ROTAS.home;
+    else if (roles && !roles.includes(session.role))
+      redirectTo = homeDe(session.role);
   }
 
   useEffect(() => {

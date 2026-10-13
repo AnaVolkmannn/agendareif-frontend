@@ -3,6 +3,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { CalendarCheck2, Clock, LayoutDashboard, LogOut, Scissors, UserRound, Users } from "lucide-react";
 import { ModeToggle } from "../theme/mode-toggle";
+import { useAuth } from "@/auth/AuthContext";
+import type { Role } from "@/types/auth";
 
 import {
   Sidebar,
@@ -23,26 +25,31 @@ interface NavItem {
   href: string;
   label: string;
   icon: typeof Users;
+  roles: Role[];
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/pages/professional/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/pages/admin/manage-professionals", label: "Profissionais", icon: Users },
-  { href: "/pages/professional/portfolio", label: "Portfólio", icon: Users },
-  { href: "/pages/professional/appointment", label: "Agenda", icon: CalendarCheck2 },
-  { href: "/pages/professional/schedule", label: "Ajustar horários", icon: Clock },
-  { href: "/pages/professional/services", label: "Meus serviços", icon: Scissors },
-  { href: "/pages/professional/profile", label: "Meu perfil", icon: UserRound },
-  { href: "/pages/login", label: "Login", icon: Users,},
+  { href: "/pages/professional/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["PROFESSIONAL"] },
+  { href: "/pages/admin/manage-professionals", label: "Profissionais", icon: Users, roles: ["ADMIN"] },
+  { href: "/pages/professional/portfolio", label: "Portfólio", icon: Users, roles: ["PROFESSIONAL"] },
+  { href: "/pages/professional/appointment", label: "Agenda", icon: CalendarCheck2, roles: ["PROFESSIONAL"] },
+  { href: "/pages/professional/schedule", label: "Ajustar horários", icon: Clock, roles: ["PROFESSIONAL"] },
+  { href: "/pages/professional/services", label: "Meus serviços", icon: Scissors, roles: ["PROFESSIONAL"] },
+  { href: "/pages/professional/profile", label: "Meu perfil", icon: UserRound, roles: ["PROFESSIONAL"] },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-   function handleSair() {
-     // TODO: limpar sessão/token de autenticação real aqui
-     router.push("/pages/login");
-   }
+  const { session, logout } = useAuth();
+
+  // cada papel só enxerga os itens do seu fluxo
+  const items = NAV_ITEMS.filter((item) => session && item.roles.includes(session.role));
+
+  function handleSair() {
+    logout();
+    router.push("/pages/login");
+  }
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="flex flex-row items-center justify-between px-3 py-3 group-data-[collapsible=icon]:justify-center">
@@ -61,7 +68,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
-              {NAV_ITEMS.map((item) => {
+              {items.map((item) => {
                 const isActive = pathname === item.href;
                 const Icon = item.icon;
                 return (
