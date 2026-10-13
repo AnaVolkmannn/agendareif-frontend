@@ -27,10 +27,12 @@ export function HeroSection() {
 
         <Button
           render={<Link href="/pages/client/select-professional">Agendar agora</Link>}
+          nativeButton={false}
           size="lg"
           className="mt-6 w-full rounded-xl py-7 text-lg transition md:mx-auto md:w-auto md:px-16 md:py-8 md:text-xl"
         />
       </div>
+
     </section>
   );
 }

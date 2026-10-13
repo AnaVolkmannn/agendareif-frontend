@@ -189,6 +189,7 @@ export default function DashboardPage() {
             render={
               <Link href="/pages/professional/schedule">Ajustar horários</Link>
             }
+            nativeButton={false}
             className="h-11 w-full rounded-lg text-[15px] font-semibold"
           />
         </div>
