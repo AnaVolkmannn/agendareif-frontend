@@ -40,7 +40,7 @@ export async function api<T = unknown>(
   if (res.status === 401 && auth && typeof window !== "undefined") {
     localStorage.removeItem("token");
     localStorage.removeItem("session");
-    window.location.href = "/login";
+    window.location.href = "/pages/login";
   }
 
   if (!res.ok)

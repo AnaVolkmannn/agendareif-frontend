@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ChevronDown, LogOut, Loader2 } from "lucide-react";
 
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { useAuth } from "@/auth/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,6 +41,7 @@ type StatusPerfil = "loading" | "success" | "error";
 
 export default function ProfilePage() {
   const router = useRouter();
+  const { logout } = useAuth();
   const whatsappRef = useRef<HTMLInputElement>(null);
   const cursorDesejadoRef = useRef<number | null>(null);
 
@@ -177,7 +179,7 @@ export default function ProfilePage() {
   }
 
   function handleSairDaConta() {
-    // TODO: revogar sessão/token quando a autenticação real estiver pronta.
+    logout();
     router.push("/pages/login");
   }
 
