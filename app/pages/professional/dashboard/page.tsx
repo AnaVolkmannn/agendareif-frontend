@@ -15,7 +15,8 @@ import {
   getDiaSemanaCurto,
   toIsoDate,
 } from "@/lib/format";
-import { getAgendamentosDashboard, HOJE_REF } from "@/app/mocks/dashboard-mock";
+import { useAuth } from "@/auth/AuthContext";
+import { getAgendamentosDashboard } from "@/lib/api/dashboard";
 import type {
   AgendamentoDashboard,
   StatusAgendamento,
@@ -23,6 +24,8 @@ import type {
 
 type Status = "loading" | "success" | "error";
 type Aba = "hoje" | "semana" | "mes" | "periodo";
+
+const HOJE_REF = new Date();
 
 const DIAS_SEMANA_FILTRO = [
   { valor: "todos", label: "Todos" },
@@ -68,6 +71,7 @@ const PERIODO_PADRAO_INICIO = toIsoDate(getPrimeiroDiaMes(HOJE_REF));
 const PERIODO_PADRAO_FIM = toIsoDate(getUltimoDiaMes(HOJE_REF));
 
 export default function DashboardPage() {
+  const { session } = useAuth();
   const [agendamentos, setAgendamentos] = useState<AgendamentoDashboard[]>([]);
   const [status, setStatus] = useState<Status>("loading");
   const [aba, setAba] = useState<Aba>("hoje");
@@ -78,9 +82,11 @@ export default function DashboardPage() {
   const [periodoFim, setPeriodoFim] = useState(PERIODO_PADRAO_FIM);
 
   useEffect(() => {
+    if (!session) return;
+
     let ativo = true;
     setStatus("loading");
-    getAgendamentosDashboard()
+    getAgendamentosDashboard(session.id)
       .then((dados) => {
         if (!ativo) return;
         setAgendamentos(dados);
@@ -93,7 +99,7 @@ export default function DashboardPage() {
     return () => {
       ativo = false;
     };
-  }, []);
+  }, [session]);
 
   const filtrados = useMemo(() => {
     const ordenados = [...agendamentos].sort((a, b) =>
@@ -194,9 +200,9 @@ export default function DashboardPage() {
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/95 px-4 pb-3 pt-4 backdrop-blur supports-backdrop-filter:bg-background/80 md:px-8">
         <div className="relative flex items-center justify-center">
           <SidebarTrigger className="absolute left-0 size-9 shrink-0 md:hidden" />
-            <h1 className="text-center font-glacial text-2xl font-extrabold md:text-3xl">
-              Dashboard
-            </h1>
+          <h1 className="text-center font-glacial text-2xl font-extrabold md:text-3xl">
+            Dashboard
+          </h1>
         </div>
       </header>
 
@@ -355,7 +361,11 @@ export default function DashboardPage() {
               onLimpar={limparFiltro}
               sufixo={`${formatDataCurta(periodoInicio)} a ${formatDataCurta(periodoFim)}`}
             />
-            <ListaAgendamentos aba="periodo" itens={filtrados} status={status} />
+            <ListaAgendamentos
+              aba="periodo"
+              itens={filtrados}
+              status={status}
+            />
           </TabsPanel>
         </Tabs>
       </main>
