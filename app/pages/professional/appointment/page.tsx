@@ -56,20 +56,67 @@ export default function DashboardPage() {
   const weekStart = useMemo(() => inicioDaSemana(selectedDate), [selectedDate]);
 
   useEffect(() => {
-    setIsLoading(true);
-    getAgendaPorData(selectedDate).then((data) => {
-      setAppointments(data);
-      setIsLoading(false);
-    });
+    let ativo = true;
+
+    async function carregarAgenda() {
+      setIsLoading(true);
+
+      try {
+        const data = await getAgendaPorData(selectedDate);
+
+        if (ativo) {
+          setAppointments(data);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar agenda:", error);
+
+        if (ativo) {
+          setAppointments([]);
+        }
+      } finally {
+        if (ativo) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    carregarAgenda();
+
+    return () => {
+      ativo = false;
+    };
   }, [selectedDate]);
 
   useEffect(() => {
     if (periodo !== "mes") return;
-    setIsLoadingCalendar(true);
-    getDiasComAgendamento(calendarYear, calendarMonth).then((dias) => {
-      setDiasComAgendamento(dias);
-      setIsLoadingCalendar(false);
-    });
+
+    let ativo = true;
+
+    async function carregarDias() {
+      setIsLoadingCalendar(true);
+
+      try {
+        const dias = await getDiasComAgendamento(calendarYear, calendarMonth);
+
+        if (ativo) {
+          setDiasComAgendamento(dias);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar calendário:", error);
+
+        if (ativo) {
+          setDiasComAgendamento([]);
+        }
+      } finally {
+        if (ativo) {
+          setIsLoadingCalendar(false);
+        }
+      }
+    }
+    carregarDias();
+    return () => {
+      ativo = false;
+    };
   }, [periodo, calendarYear, calendarMonth]);
 
   function handlePrevMonth() {
@@ -94,16 +141,27 @@ export default function DashboardPage() {
     if (!selecionado) return;
 
     setIsCancelling(true);
+
     try {
       await cancelarAgendamento(selecionado.id);
+
       setAppointments((atual) =>
         atual.map((a) =>
           a.id === selecionado.id
-            ? { ...a, status: "disponivel", service: null, client: null }
+            ? {
+                ...a,
+                status: "disponivel",
+                service: null,
+                client: null,
+              }
             : a,
         ),
       );
+
       setSelecionado(null);
+    } catch (error) {
+      console.error("Erro ao cancelar agendamento:", error);
+      alert("Não foi possível cancelar o agendamento. Tente novamente.");
     } finally {
       setIsCancelling(false);
     }
