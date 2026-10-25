@@ -19,9 +19,12 @@ export async function api<T = unknown>(
   path: string,
   { method = "GET", body, auth = true }: ApiOptions = {},
 ): Promise<T> {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
+  // Upload de arquivo: o browser define o Content-Type (com o boundary) sozinho.
+  const isForm = typeof FormData !== "undefined" && body instanceof FormData;
+
+  const headers: Record<string, string> = {};
+  if (!isForm) headers["Content-Type"] = "application/json";
+
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
   if (auth && token) headers.Authorization = `Bearer ${token}`;
@@ -29,7 +32,12 @@ export async function api<T = unknown>(
   const res = await fetch(`${BASE_URL}${path}`, {
     method,
     headers,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+    body:
+      body === undefined
+        ? undefined
+        : isForm
+          ? (body as FormData)
+          : JSON.stringify(body),
   });
 
   if (res.status === 204) return null as T;

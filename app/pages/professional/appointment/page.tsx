@@ -245,7 +245,7 @@ export default function DashboardPage() {
         <div className="sticky bottom-0 z-20 -mx-4 mt-auto border-t border-border/60 bg-background/95 px-4 py-4 backdrop-blur supports-backdrop-filter:bg-background/80 md:-mx-8 md:px-8">
           <Button
             render={
-              <Link href="/pages/professional/schedule">Ajustar horários</Link>
+              <Link href="/pages/professional/schedule">Ajustar disponibilidade de agenda</Link>
             }
             nativeButton={false}
             className="h-11 w-full rounded-lg text-[15px] font-semibold"

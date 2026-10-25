@@ -11,17 +11,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ProfileAvatarField } from "@/components/sections/professional-profile/profile-avatar-field";
-import {
-  alterarSenha,
-  atualizarPerfilLogado,
-  getPerfilLogado,
-} from "@/lib/api/perfil";
+import { ApiError } from "@/lib/api/client";
+import { atualizarPerfilLogado, getPerfilLogado } from "@/lib/api/perfil";
 import {
   contarDigitos,
   mascararTelefone,
@@ -41,12 +39,15 @@ type StatusPerfil = "loading" | "success" | "error";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout, session, changePassword } = useAuth();
+  const professionalId = session?.id;
+
   const whatsappRef = useRef<HTMLInputElement>(null);
   const cursorDesejadoRef = useRef<number | null>(null);
 
   const [status, setStatus] = useState<StatusPerfil>("loading");
   const [perfil, setPerfil] = useState<Profissional | null>(null);
+  const [aceitaOnline, setAceitaOnline] = useState(true);
 
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -65,15 +66,21 @@ export default function ProfilePage() {
   const [alterandoSenha, setAlterandoSenha] = useState(false);
   const [senhaAlterada, setSenhaAlterada] = useState(false);
 
+  // Depende só do id (e não do objeto session): o changePassword troca a
+  // sessão e, com [session], o perfil recarregaria apagando o que está na tela.
   useEffect(() => {
+    if (professionalId === undefined) return;
+
     let ativo = true;
-    getPerfilLogado()
+    getPerfilLogado(professionalId)
       .then((dados) => {
         if (!ativo) return;
         setPerfil(dados);
         setNome(dados.nome);
         setEmail(dados.email ?? "");
         setWhatsapp(digitosParaTelefoneMascarado(dados.whatsapp));
+        setDescricao(dados.especialidade);
+        setAceitaOnline(dados.modoAgendamento !== "MANUAL");
         setStatus("success");
       })
       .catch(() => {
@@ -83,7 +90,7 @@ export default function ProfilePage() {
     return () => {
       ativo = false;
     };
-  }, []);
+  }, [professionalId]);
 
   function handleWhatsappChange(event: ChangeEvent<HTMLInputElement>) {
     const elemento = event.target;
@@ -110,6 +117,8 @@ export default function ProfilePage() {
   }, [whatsapp]);
 
   async function handleSalvarDados() {
+    if (professionalId === undefined || !perfil) return;
+
     if (!nome.trim()) {
       setErroDados("Informe seu nome completo.");
       return;
@@ -127,28 +136,36 @@ export default function ProfilePage() {
     setDadosSalvos(false);
     setSalvandoDados(true);
     try {
-      const atualizado = await atualizarPerfilLogado({
+      const atualizado = await atualizarPerfilLogado(professionalId, {
         nome,
         email,
         whatsapp,
+        descricao,
+        modoAgendamento: aceitaOnline ? "ONLINE" : "MANUAL",
         foto,
+        fotoUrlAtual: perfil.fotoUrl,
       });
       setPerfil(atualizado);
+      setFoto(null);
       setDadosSalvos(true);
-    } catch {
-      setErroDados("Não foi possível salvar as alterações. Tente novamente.");
+    } catch (err) {
+      setErroDados(
+        err instanceof ApiError
+          ? err.message
+          : "Não foi possível salvar as alterações. Tente novamente.",
+      );
     } finally {
       setSalvandoDados(false);
     }
   }
 
   async function handleConfirmarSenha() {
-    if (senhaAtual.length < 6) {
+    if (!senhaAtual) {
       setErroSenha("Informe sua senha atual.");
       return;
     }
-    if (novaSenha.length < 6) {
-      setErroSenha("A nova senha precisa ter pelo menos 6 caracteres.");
+    if (novaSenha.length < 8) {
+      setErroSenha("A nova senha precisa ter pelo menos 8 caracteres.");
       return;
     }
 
@@ -156,16 +173,16 @@ export default function ProfilePage() {
     setSenhaAlterada(false);
     setAlterandoSenha(true);
     try {
-      const resultado = await alterarSenha({ senhaAtual, novaSenha });
-      if (!resultado.sucesso) {
-        setErroSenha(resultado.mensagem ?? "Não foi possível alterar a senha.");
-        return;
-      }
+      await changePassword(senhaAtual, novaSenha);
       setSenhaAlterada(true);
       setSenhaAtual("");
       setNovaSenha("");
-    } catch {
-      setErroSenha("Não foi possível alterar a senha. Tente novamente.");
+    } catch (err) {
+      setErroSenha(
+        err instanceof ApiError
+          ? err.message
+          : "Não foi possível alterar a senha. Tente novamente.",
+      );
     } finally {
       setAlterandoSenha(false);
     }
@@ -282,6 +299,28 @@ export default function ProfilePage() {
                   className="resize-none rounded-xl"
                   placeholder="Ex.: Especialista em nail art, manicure e pedicure. Com experiência em..."
                   aria-invalid={!!erroDados && descricao.length > 500}
+                />
+              </div>
+
+              <div className="flex items-start justify-between gap-4 rounded-xl border border-border/60 bg-card px-4 py-3">
+                <div className="min-w-0">
+                  <Label htmlFor="perfil-modo-agendamento">
+                    Agendamento pelo site
+                  </Label>
+                  <p className="mt-1 text-[12px] leading-snug text-muted-foreground">
+                    {aceitaOnline
+                      ? "Os clientes escolhem dia e horário direto no site."
+                      : "Ao clicar em agendar, o cliente é enviado para o seu WhatsApp."}
+                  </p>
+                </div>
+                <Switch
+                  id="perfil-modo-agendamento"
+                  checked={aceitaOnline}
+                  onCheckedChange={(valor) => {
+                    setAceitaOnline(valor);
+                    setDadosSalvos(false);
+                  }}
+                  className="mt-1"
                 />
               </div>
             </div>

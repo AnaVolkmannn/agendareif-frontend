@@ -1,71 +1,67 @@
+import { api } from "@/lib/api/client";
+import { uploadImagem } from "@/lib/api/upload";
 import type {
-  AlterarSenhaInput,
-  AlterarSenhaResult,
   AtualizarPerfilInput,
+  ModoAgendamento,
   Profissional,
 } from "@/types/profissional";
 
-function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+interface ProfessionalResponse {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  profilePicture: string | null;
+  description: string | null;
+  scheduleMode: ModoAgendamento;
 }
 
-// MOCK — remove quando ligar na API real. Representa o profissional logado
-// (viria do token/sessão de autenticação).
-let PERFIL_LOGADO: Profissional = {
-  id: "3",
-  nome: "Malu Oliveira",
-  especialidade: "Especialista na técnica de fibra de vidro & nail arts",
-  whatsapp: "5547999990003",
-  email: "malu.oliveira@gmail.com",
-};
-
-/**
- * TODO: substituir pela chamada real quando o backend estiver pronto.
- * Endpoint esperado: GET /api/perfil/me
- */
-export async function getPerfilLogado(): Promise<Profissional> {
-  await delay(400);
-  return PERFIL_LOGADO;
-}
-
-/**
- * TODO: substituir pela chamada real quando o backend estiver pronto.
- * Endpoint esperado: PUT /api/perfil/me
- */
-export async function atualizarPerfilLogado(
-  dados: AtualizarPerfilInput
-): Promise<Profissional> {
-  await delay(600);
-
-  const digitosWhatsapp = dados.whatsapp.replace(/\D/g, "");
-
-  PERFIL_LOGADO = {
-    ...PERFIL_LOGADO,
-    nome: dados.nome.trim(),
-    email: dados.email.trim(),
-    whatsapp: digitosWhatsapp.startsWith("55")
-      ? digitosWhatsapp
-      : `55${digitosWhatsapp}`,
-    fotoUrl: dados.foto ? URL.createObjectURL(dados.foto) : PERFIL_LOGADO.fotoUrl,
+function toProfissional(p: ProfessionalResponse): Profissional {
+  return {
+    id: String(p.id),
+    nome: p.name,
+    especialidade: p.description ?? "",
+    fotoUrl: p.profilePicture ?? undefined,
+    whatsapp: p.phone ?? "",
+    email: p.email,
+    modoAgendamento: p.scheduleMode,
   };
-
-  return PERFIL_LOGADO;
 }
 
-/**
- * TODO: substituir pela chamada real quando o backend estiver pronto.
- * Endpoint esperado: POST /api/perfil/me/senha
- */
-export async function alterarSenha(
-  dados: AlterarSenhaInput
-): Promise<AlterarSenhaResult> {
-  await delay(600);
+export async function getPerfilLogado(
+  professionalId: number,
+): Promise<Profissional> {
+  const data = await api<ProfessionalResponse>(
+    `/professionals/${professionalId}`,
+  );
+  return toProfissional(data);
+}
 
-  if (dados.senhaAtual.length < 6) {
-    return { sucesso: false, mensagem: "Senha atual incorreta." };
-  }
+export async function atualizarPerfilLogado(
+  professionalId: number,
+  dados: AtualizarPerfilInput,
+): Promise<Profissional> {
+  // A máscara garante 11 dígitos (ddd + 9 dígitos). Sempre prefixa o 55:
+  // checar startsWith("55") erraria para o DDD 55.
+  const phone = `55${dados.whatsapp.replace(/\D/g, "")}`;
 
-  console.log("[mock] Senha alterada para o perfil:", PERFIL_LOGADO.id);
+  const profilePicture = dados.foto
+    ? await uploadImagem("profiles", dados.foto)
+    : (dados.fotoUrlAtual ?? null);
 
-  return { sucesso: true };
+  const data = await api<ProfessionalResponse>(
+    `/professionals/${professionalId}`,
+    {
+      method: "PUT",
+      body: {
+        name: dados.nome.trim(),
+        email: dados.email.trim(),
+        phone,
+        profilePicture,
+        description: dados.descricao.trim(),
+        scheduleMode: dados.modoAgendamento,
+      },
+    },
+  );
+  return toProfissional(data);
 }
