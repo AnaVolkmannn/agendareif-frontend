@@ -101,6 +101,49 @@ export function validarTelefone(telefone: string): boolean {
   return TELEFONE_REGEX.test(telefone.trim());
 }
 
+export interface RequisitoSenha {
+  id: string;
+  label: string;
+  atendido: boolean;
+}
+
+/**
+ * Regras da nova senha, na ordem em que aparecem no checklist da tela de
+ * troca de senha. A API só exige o mínimo de 8 caracteres; as demais são
+ * regras nossas, mais restritivas, validadas no front.
+ */
+export function requisitosDaSenha(
+  nova: string,
+  confirmacao: string,
+): RequisitoSenha[] {
+  return [
+    {
+      id: "tamanho",
+      label: "Mínimo de 8 caracteres",
+      atendido: nova.length >= 8,
+    },
+    {
+      id: "numero",
+      label: "Pelo menos 1 número",
+      atendido: /\d/.test(nova),
+    },
+    {
+      id: "especial",
+      label: "Pelo menos 1 caractere especial",
+      atendido: /[^A-Za-z0-9]/.test(nova),
+    },
+    {
+      id: "coincidem",
+      label: "As senhas coincidem",
+      atendido: nova.length > 0 && nova === confirmacao,
+    },
+  ];
+}
+
+export function senhaValida(nova: string, confirmacao: string): boolean {
+  return requisitosDaSenha(nova, confirmacao).every((item) => item.atendido);
+}
+
 export function validarNomeCompleto(nome: string): boolean {
   const partes = nome.trim().split(/\s+/).filter((parte) => parte.length >= 2);
   return partes.length >= 2;
