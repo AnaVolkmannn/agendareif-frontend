@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { ServicePhotosField } from "@/components/sections/my-services/service-photos-field";
 import { mascararPreco, numeroParaPreco, precoParaNumero } from "@/lib/validations";
-import { atualizarServico, criarServico } from "@/app/mocks/services-mock";
+import { atualizarServico, criarServico } from "@/lib/api/services";
 import type { Service } from "@/types/service";
 
 interface ServiceFormDialogProps {

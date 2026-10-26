@@ -1,57 +1,52 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8081";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8081";
 
 export class ApiError extends Error {
   status: number;
-
-  constructor(status: number, message: string) {
+  constructor(message: string, status: number) {
     super(message);
     this.status = status;
   }
 }
 
-interface ApiOptions {
-  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+interface ApiOptions extends Omit<RequestInit, "body"> {
   body?: unknown;
+  /** false = não envia o header Authorization (ex: login). Padrão: true. */
   auth?: boolean;
 }
 
-export async function api<T = unknown>(
-  path: string,
-  { method = "GET", body, auth = true }: ApiOptions = {},
-): Promise<T> {
-  // Upload de arquivo: o browser define o Content-Type (com o boundary) sozinho.
-  const isForm = typeof FormData !== "undefined" && body instanceof FormData;
+function getToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("token");
+}
 
-  const headers: Record<string, string> = {};
-  if (!isForm) headers["Content-Type"] = "application/json";
+export async function api<T>(path: string, options: ApiOptions = {}): Promise<T> {
+  const { body, auth = true, headers, ...rest } = options;
+  const token = auth ? getToken() : null;
 
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  if (auth && token) headers.Authorization = `Bearer ${token}`;
-
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method,
-    headers,
-    body:
-      body === undefined
-        ? undefined
-        : isForm
-          ? (body as FormData)
-          : JSON.stringify(body),
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...rest,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...headers,
+    },
+    body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 
-  if (res.status === 204) return null as T;
-
-  const data = await res.json().catch(() => null);
-
-  // token expirado ou inválido: limpa a sessão e volta para o login
-  if (res.status === 401 && auth && typeof window !== "undefined") {
-    localStorage.removeItem("token");
-    localStorage.removeItem("session");
-    window.location.href = "/pages/login";
+  if (!response.ok) {
+    let message = `Erro ${response.status} ao chamar ${path}`;
+    try {
+      const errBody = await response.json();
+      message = errBody.message ?? message;
+    } catch {
+      // resposta sem corpo JSON
+    }
+    throw new ApiError(message, response.status);
   }
 
-  if (!res.ok)
-    throw new ApiError(res.status, data?.message ?? "Erro inesperado");
-  return data as T;
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  return response.json() as Promise<T>;
 }
