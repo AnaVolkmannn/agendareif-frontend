@@ -22,6 +22,7 @@ import {
   getExcecoes,
   getHorarioPadrao,
   salvarHorarioPadrao,
+  validarHorario,
 } from "@/lib/api/horarios";
 import type { DiaHorario, Excecao, HorarioPadrao } from "@/types/horario";
 
@@ -42,6 +43,7 @@ export default function SchedulePage() {
   const [dialogAberto, setDialogAberto] = useState(false);
   const [temAlteracao, setTemAlteracao] = useState(false);
   const [salvando, setSalvando] = useState(false);
+  const [erroSalvar, setErroSalvar] = useState<string | null>(null);
 
   // Os loaders não mexem no status: o estado inicial já é "loading" e o
   // retry cuida do próprio reset (mesmo padrão da tela de select-service).
@@ -74,6 +76,7 @@ export default function SchedulePage() {
 
 
   function atualizarDia(diaAtualizado: DiaHorario) {
+    setErroSalvar(null);
     setHorario((atual) =>
       atual
         ? {
@@ -88,6 +91,7 @@ export default function SchedulePage() {
   }
 
   function atualizarDescanso(minutos: number) {
+    setErroSalvar(null);
     setHorario((atual) => (atual ? { ...atual, descansoMinutos: minutos } : atual));
     setTemAlteracao(true);
   }
@@ -95,10 +99,21 @@ export default function SchedulePage() {
   async function handleSalvar() {
     if (!horario) return;
 
+    const problema = validarHorario(horario);
+    if (problema) {
+      setErroSalvar(problema);
+      return;
+    }
+
+    setErroSalvar(null);
     setSalvando(true);
     try {
-      await salvarHorarioPadrao(horario);
+      // A API devolve o horário já com os ids reais dos intervalos.
+      const salvo = await salvarHorarioPadrao(horario);
+      setHorario(salvo);
       setTemAlteracao(false);
+    } catch {
+      setErroSalvar("Não foi possível salvar os horários. Tente novamente.");
     } finally {
       setSalvando(false);
     }
@@ -114,8 +129,13 @@ export default function SchedulePage() {
   }
 
   async function handleExcluirExcecao(excecao: Excecao) {
-    setExcecoes((atual) => atual.filter((e) => e.id !== excecao.id));
-    await excluirExcecao(excecao.id);
+    try {
+      await excluirExcecao(excecao.id);
+      setExcecoes((atual) => atual.filter((e) => e.id !== excecao.id));
+    } catch {
+      // Não conseguiu excluir: recarrega para a lista refletir o que está na API.
+      carregarExcecoes();
+    }
   }
 
   return (
@@ -194,6 +214,12 @@ export default function SchedulePage() {
                   ))}
                 </ul>
               </div>
+
+              {erroSalvar && (
+                <p className="text-[13px] font-semibold text-destructive" role="alert">
+                  {erroSalvar}
+                </p>
+              )}
 
               {temAlteracao && (
                 <Button
