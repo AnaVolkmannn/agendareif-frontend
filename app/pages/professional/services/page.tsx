@@ -7,7 +7,7 @@ import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { ServiceListItem } from "@/components/sections/my-services/service-list-item";
 import { ServiceFormDialog } from "@/components/sections/my-services/service-form-dialog";
 import { Button } from "@/components/ui/button";
-import { excluirServico, getServices } from "@/app/mocks/services-mock";
+import { excluirServico, getServices } from "@/lib/api/services";
 import type { Service } from "@/types/service";
 
 type Status = "loading" | "success" | "error";
