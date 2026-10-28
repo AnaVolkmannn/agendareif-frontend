@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { CalendarMonth } from "@/components/sections/scheduling/calendar-month";
 import { TimeSlotGrid } from "@/components/sections/scheduling/time-slot-grid";
 import { markNavigatedWithinApp } from "@/lib/app-nav-state";
-import { getAvailableDays, getAvailableTimes } from "@/lib/api/schedule";
+import { getAvailableSlots, getSelectableDays, type AvailableSlot } from "@/lib/api/scheduling";
 
 export default function SchedulingPage() {
   return (
@@ -25,41 +25,49 @@ function SchedulingContent() {
 
   const profissionalNome = searchParams.get("profissionalNome");
 
+  // TODO: confirme com as telas de seleção de profissional/serviço qual
+  // nome de parâmetro elas realmente usam — aceita os dois formatos por
+  // segurança, mas o ideal é padronizar em um só.
+  const professionalIdParam =
+    searchParams.get("profissionalId") ?? searchParams.get("professionalId");
+  const serviceIdParam = searchParams.get("servicoId") ?? searchParams.get("serviceId");
+
+  const professionalId = professionalIdParam ? Number(professionalIdParam) : null;
+  const serviceId = serviceIdParam ? Number(serviceIdParam) : null;
+  const missingParams = !professionalId || !serviceId;
+
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<AvailableSlot | null>(null);
 
-  const [availableDays, setAvailableDays] = useState<number[]>([]);
-  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
-  const [isLoadingDays, setIsLoadingDays] = useState(true);
+  const [slots, setSlots] = useState<AvailableSlot[]>([]);
   const [isLoadingTimes, setIsLoadingTimes] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const availableDays = getSelectableDays(year, month);
 
   useEffect(() => {
-    setIsLoadingDays(true);
     setSelectedDay(null);
-    setSelectedTime(null);
-    setAvailableTimes([]);
-
-    getAvailableDays(year, month).then((days) => {
-      setAvailableDays(days);
-      setIsLoadingDays(false);
-    });
+    setSelectedSlot(null);
+    setSlots([]);
   }, [year, month]);
 
   useEffect(() => {
-    if (selectedDay === null) return;
+    if (selectedDay === null || missingParams || !professionalId || !serviceId) return;
 
     setIsLoadingTimes(true);
-    setSelectedTime(null);
+    setSelectedSlot(null);
+    setLoadError(null);
 
     const date = new Date(year, month, selectedDay);
-    getAvailableTimes(date).then((times) => {
-      setAvailableTimes(times);
-      setIsLoadingTimes(false);
-    });
-  }, [selectedDay, year, month]);
+
+    getAvailableSlots(professionalId, serviceId, date)
+      .then((data) => setSlots(data))
+      .catch(() => setLoadError("Não foi possível carregar os horários. Tente novamente."))
+      .finally(() => setIsLoadingTimes(false));
+  }, [selectedDay, year, month, professionalId, serviceId, missingParams]);
 
   function handlePrevMonth() {
     if (month === 0) {
@@ -80,14 +88,13 @@ function SchedulingContent() {
   }
 
   function handleContinue() {
-    if (!selectedDay || !selectedTime) return;
+    if (!selectedSlot) return;
 
-    // Preserva os params vindos das etapas anteriores (profissional, serviços).
     const params = new URLSearchParams(searchParams.toString());
-
-    const dataAgendada = new Date(year, month, selectedDay);
-    params.set("data", dataAgendada.toISOString().split("T")[0]); // YYYY-MM-DD
-    params.set("hora", selectedTime);
+    // Horário exato devolvido pelo backend — já considera duração/conflitos.
+    params.set("scheduledAt", selectedSlot.isoDateTime);
+    params.set("data", selectedSlot.isoDateTime.slice(0, 10));
+    params.set("hora", selectedSlot.time);
 
     markNavigatedWithinApp();
     router.push(`/pages/client/addinspiration?${params.toString()}`);
@@ -96,6 +103,19 @@ function SchedulingContent() {
   const formattedSelectedDate = selectedDay
     ? `${String(selectedDay).padStart(2, "0")}/${String(month + 1).padStart(2, "0")}`
     : null;
+
+  if (missingParams) {
+    return (
+      <BookingShell>
+        <header className="mb-2 flex items-center">
+          <BackButton fallbackHref="/pages/client/select-service" />
+        </header>
+        <p className="mt-10 text-sm text-destructive" role="alert">
+          Profissional ou serviço não informado. Volte e selecione novamente.
+        </p>
+      </BookingShell>
+    );
+  }
 
   return (
     <BookingShell>
@@ -120,7 +140,7 @@ function SchedulingContent() {
         onSelectDay={setSelectedDay}
         onPrevMonth={handlePrevMonth}
         onNextMonth={handleNextMonth}
-        isLoading={isLoadingDays}
+        isLoading={false}
       />
 
       {selectedDay && (
@@ -128,12 +148,25 @@ function SchedulingContent() {
           <h2 className="mb-3 font-glacial text-sm font-bold text-foreground">
             Horários disponíveis — {formattedSelectedDate}
           </h2>
-          <TimeSlotGrid
-            times={availableTimes}
-            selectedTime={selectedTime}
-            onSelectTime={setSelectedTime}
-            isLoading={isLoadingTimes}
-          />
+
+          {loadError ? (
+            <p className="text-sm text-destructive" role="alert">
+              {loadError}
+            </p>
+          ) : !isLoadingTimes && slots.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Nenhum horário disponível para esse dia.
+            </p>
+          ) : (
+            <TimeSlotGrid
+              times={slots.map((s) => s.time)}
+              selectedTime={selectedSlot?.time ?? null}
+              onSelectTime={(time) =>
+                setSelectedSlot(slots.find((s) => s.time === time) ?? null)
+              }
+              isLoading={isLoadingTimes}
+            />
+          )}
         </div>
       )}
 
@@ -141,7 +174,7 @@ function SchedulingContent() {
         <Button
           type="button"
           onClick={handleContinue}
-          disabled={!selectedTime}
+          disabled={!selectedSlot}
           className="h-11 w-full rounded-2xl text-[15px] font-semibold disabled:opacity-40 md:w-auto md:px-10"
         >
           Continuar
