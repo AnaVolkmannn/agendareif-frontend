@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ServiceCard } from "@/components/sections/service/service-card";
 import { ServicePhotosDialog } from "@/components/sections/service/service-photos-dialog";
 import { markNavigatedWithinApp } from "@/lib/app-nav-state";
-import { getServices } from "@/app/mocks/services-mock";
+import { getServicesByProfessional } from "@/lib/api/services";
 import type { Service } from "@/types/service";
 
 type Status = "loading" | "success" | "error";
@@ -36,12 +36,12 @@ function ServiceSelectionContent() {
   const [selectedId, setSelectedId] = useState<string | null>(serviceIdFromUrl);
   const [fotosDoServico, setFotosDoServico] = useState<Service | null>(null);
 
-  // Busca a lista simulando a requisição da API. Não mexe no status aqui
+  // Busca na API os serviços do profissional escolhido. Não mexe no status aqui
   // dentro: o estado inicial já é "loading" e o retry cuida do próprio reset.
   const fetchServices = useCallback(() => {
     let active = true;
 
-    getServices(professionalId)
+    getServicesByProfessional(professionalId)
       .then((data) => {
         if (!active) return;
         setServices(data);
