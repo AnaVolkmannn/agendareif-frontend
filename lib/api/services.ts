@@ -58,6 +58,25 @@ export async function getServices(): Promise<Service[]> {
   return data.map(toService);
 }
 
+/**
+ * Serviços de um profissional escolhido pelo CLIENTE (fluxo público, sem
+ * login). Diferente de getServices(), que lê o profissional da sessão.
+ */
+export async function getServicesByProfessional(
+  professionalId: string | null
+): Promise<Service[]> {
+  if (!professionalId) {
+    throw new Error("Profissional não informado.");
+  }
+
+  const data = await api<ServiceOfferingResponseDTO[]>(
+    `/professionals/${encodeURIComponent(professionalId)}/services`,
+    // Rota pública: não manda token (um token vencido atrapalharia o cliente).
+    { auth: false }
+  );
+  return data.map(toService);
+}
+
 export async function criarServico(dados: ServiceInput): Promise<Service> {
   const professionalId = getProfessionalId();
   const saved = await api<ServiceOfferingResponseDTO>(
