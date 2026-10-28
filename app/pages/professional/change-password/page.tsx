@@ -12,14 +12,16 @@ import { useAuth } from "@/auth/AuthContext";
 import { ApiError } from "@/lib/api/client";
 import { requisitosDaSenha, senhaValida } from "@/lib/validations";
 
-function mensagemDeErro(err: unknown): string {
+function mensagemDeErro(err: unknown, pediuSenhaProvisoria: boolean): string {
   if (err instanceof ApiError) {
     // A API lança IllegalArgumentException("Senha atual incorreta") sem nenhum
     // @ControllerAdvice para tratá-la, então o Spring cai no /error e, por a
-    // sessão ser STATELESS, devolve 403 de corpo vazio. Na prática, nesta tela
-    // é sempre a senha provisória errada: o id enviado é o do próprio usuário.
+    // sessão ser STATELESS, devolve 403 de corpo vazio. Aqui isso só pode ser
+    // a senha provisória recusada: o id enviado é o do próprio usuário.
     if (err.status === 403)
-      return "Senha provisória incorreta. Confira a senha enviada no e-mail.";
+      return pediuSenhaProvisoria
+        ? "Senha provisória incorreta. Confira a senha enviada no e-mail."
+        : "Não foi possível confirmar seu acesso. Faça login novamente.";
     return err.message;
   }
   // fetch lança TypeError quando a API está fora do ar ou o CORS bloqueou
@@ -79,7 +81,7 @@ function CampoSenha({
 
 export default function ChangePasswordPage() {
   const router = useRouter();
-  const { changePassword } = useAuth();
+  const { changePassword, temSenhaEmMemoria } = useAuth();
 
   const [senhaProvisoria, setSenhaProvisoria] = useState("");
   const [novaSenha, setNovaSenha] = useState("");
@@ -87,9 +89,15 @@ export default function ChangePasswordPage() {
   const [erro, setErro] = useState<string | null>(null);
   const [salvando, setSalvando] = useState(false);
 
+  // No fluxo normal a senha provisória veio do login e não é pedida de novo.
+  // Depois de um F5 ela se perde da memória, e aí o campo precisa aparecer.
+  const pedirSenhaProvisoria = !temSenhaEmMemoria;
+
   const requisitos = requisitosDaSenha(novaSenha, confirmacao);
   const podeSalvar =
-    !!senhaProvisoria && senhaValida(novaSenha, confirmacao) && !salvando;
+    (!pedirSenhaProvisoria || !!senhaProvisoria) &&
+    senhaValida(novaSenha, confirmacao) &&
+    !salvando;
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -99,11 +107,14 @@ export default function ChangePasswordPage() {
     setSalvando(true);
 
     try {
-      // o changePassword já refaz o login e grava a sessão nova
-      await changePassword(senhaProvisoria, novaSenha);
+      // null = usa a senha que o AuthContext guardou no login
+      await changePassword(
+        pedirSenhaProvisoria ? senhaProvisoria : null,
+        novaSenha,
+      );
       router.replace("/pages/professional/dashboard");
     } catch (err) {
-      setErro(mensagemDeErro(err));
+      setErro(mensagemDeErro(err, pedirSenhaProvisoria));
       setSalvando(false);
     }
   }
@@ -130,14 +141,16 @@ export default function ChangePasswordPage() {
         </div>
 
         <div className="flex flex-col gap-4">
-          <CampoSenha
-            id="senha-provisoria"
-            label="Senha provisória"
-            value={senhaProvisoria}
-            onChange={setSenhaProvisoria}
-            autoComplete="current-password"
-            invalido={!!erro}
-          />
+          {pedirSenhaProvisoria && (
+            <CampoSenha
+              id="senha-provisoria"
+              label="Senha provisória"
+              value={senhaProvisoria}
+              onChange={setSenhaProvisoria}
+              autoComplete="current-password"
+              invalido={!!erro}
+            />
+          )}
           <CampoSenha
             id="nova-senha"
             label="Nova senha"
