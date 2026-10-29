@@ -6,7 +6,7 @@ import type {
   Profissional,
 } from "@/types/profissional";
 
-interface ProfessionalResponse {
+export interface ProfessionalResponse {
   id: number;
   name: string;
   email: string;
@@ -16,7 +16,7 @@ interface ProfessionalResponse {
   scheduleMode: ModoAgendamento;
 }
 
-function toProfissional(p: ProfessionalResponse): Profissional {
+export function toProfissional(p: ProfessionalResponse): Profissional {
   return {
     id: String(p.id),
     nome: p.name,

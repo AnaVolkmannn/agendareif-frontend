@@ -7,7 +7,7 @@ import { BackButton } from "@/components/sections/booking/back-button";
 import { BookingShell } from "@/components/sections/booking/booking-shell";
 import { ProfessionalCard } from "@/components/sections/professional/professional-card";
 import { markNavigatedWithinApp } from "@/lib/app-nav-state";
-import { getProfissionais } from "@/app/mocks/professionals-mock";
+import { getProfissionais } from "@/lib/api/profissionais";
 import type { Profissional } from "@/types/profissional";
 
 type Status = "loading" | "success" | "error";
