@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import {
   excluirProfissional,
   getProfissionais,
-} from "@/app/mocks/professionals-mock";
+} from "@/lib/api/profissionais";
 import type { Profissional } from "@/types/profissional";
 
 type Status = "loading" | "success" | "error";
@@ -23,6 +23,7 @@ export default function ManageProfessionalsPage() {
   const [profissionalEmEdicao, setProfissionalEmEdicao] =
     useState<Profissional | null>(null);
   const [excluindoId, setExcluindoId] = useState<string | null>(null);
+  const [erroExclusao, setErroExclusao] = useState<string | null>(null);
 
   useEffect(() => {
     let ativo = true;
@@ -58,11 +59,18 @@ export default function ManageProfessionalsPage() {
     );
     if (!confirmou) return;
 
+    setErroExclusao(null);
     setExcluindoId(profissional.id);
     try {
       await excluirProfissional(profissional.id);
       setProfissionais((atual) =>
         atual.filter((p) => p.id !== profissional.id),
+      );
+    } catch (erro) {
+      setErroExclusao(
+        erro instanceof Error
+          ? `${profissional.nome}: ${erro.message}`
+          : "Não foi possível excluir o profissional. Tente novamente.",
       );
     } finally {
       setExcluindoId(null);
@@ -92,6 +100,12 @@ export default function ManageProfessionalsPage() {
             <p className="text-sm text-destructive" role="alert">
               Não foi possível carregar os profissionais agora. Tente novamente
               em instantes.
+            </p>
+          )}
+
+          {erroExclusao && (
+            <p className="mb-4 text-sm text-destructive" role="alert">
+              {erroExclusao}
             </p>
           )}
 
