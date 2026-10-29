@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { AvatarUploadField } from "@/components/sections/manage-professionals/avatar-upload-field";
-import { atualizarProfissional } from "@/app/mocks/professionals-mock";
+import { atualizarProfissional } from "@/lib/api/profissionais";
 import type { Profissional } from "@/types/profissional";
 
 interface EditProfessionalDialogProps {
@@ -55,8 +55,12 @@ export function EditProfessionalDialog({
       });
       onSalvo(atualizado);
       onOpenChange(false);
-    } catch {
-      setErro("Não foi possível salvar as alterações. Tente novamente.");
+    } catch (falha) {
+      setErro(
+        falha instanceof Error
+          ? falha.message
+          : "Não foi possível salvar as alterações. Tente novamente.",
+      );
     } finally {
       setSalvando(false);
     }
