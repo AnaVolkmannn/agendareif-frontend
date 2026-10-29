@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { linkWhatsapp } from "@/lib/whatsapp";
 import type { Profissional } from "@/types/profissional";
 
 interface ProfessionalCardProps {
@@ -8,12 +9,11 @@ interface ProfessionalCardProps {
   onEscolher: (profissional: Profissional) => void;
 }
 
-function buildWhatsappLink(whatsapp: string) {
-  const digits = whatsapp.replace(/\D/g, "");
-  return `https://wa.me/${digits}`;
-}
-
 export function ProfessionalCard({ profissional, onEscolher }: ProfessionalCardProps) {
+  // null quando o cadastro não tem telefone aproveitável: aí o botão some,
+  // em vez de abrir uma conversa com o número errado.
+  const whatsappHref = linkWhatsapp(profissional.whatsapp);
+
   return (
     <article className="flex h-full min-h-[132px] gap-4 rounded-3xl bg-input p-4 text-secondary-foreground md:min-h-[140px]">
       <div className="h-[78px] w-[78px] shrink-0 overflow-hidden rounded-xl bg-white md:h-24 md:w-24">
@@ -43,20 +43,18 @@ export function ProfessionalCard({ profissional, onEscolher }: ProfessionalCardP
             Selecionar
           </Button>
 
-          <Button
-            type="button"
-            onClick={() =>
-              window.open(
-                buildWhatsappLink(profissional.whatsapp),
-                "_blank",
-                "noopener,noreferrer"
-              )
-            }
-            className="h-11 w-full gap-2 rounded-xl text-[14px] font-semibold sm:flex-1"
-          >
-            <WhatsAppIcon />
-            WhatsApp
-          </Button>
+          {whatsappHref && (
+            <Button
+              type="button"
+              onClick={() =>
+                window.open(whatsappHref, "_blank", "noopener,noreferrer")
+              }
+              className="h-11 w-full gap-2 rounded-xl text-[14px] font-semibold sm:flex-1"
+            >
+              <WhatsAppIcon />
+              WhatsApp
+            </Button>
+          )}
         </div>
       </div>
     </article>
