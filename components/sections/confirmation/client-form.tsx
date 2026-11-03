@@ -13,7 +13,11 @@ import {
   posicaoAposNDigitos,
   mascararTelefone,
 } from "@/lib/validations";
-import type { CamposInvalidos, DadosCliente, StatusConfirmacao } from "@/types/agendamento";
+import type {
+  CamposInvalidos,
+  DadosCliente,
+  StatusConfirmacao,
+} from "@/types/agendamento";
 
 interface ClientFormProps {
   dados: DadosCliente;
@@ -23,12 +27,6 @@ interface ClientFormProps {
   onCampoChange: (campo: keyof DadosCliente, valor: string) => void;
   onSubmit: () => void;
 }
-
-// Os campos usam a mesma cor sempre branca, independente do tema — igual
-// ao card de resumo. O components/ui/input.tsx padrão do projeto segue o
-// tema (é usado em outras telas), então sobrescrevemos só aqui.
-const CAMPO_CLASS =
-  "h-11 rounded-xl border-black/10 bg-white px-3.5 text-sm text-neutral-900 placeholder:text-neutral-500 dark:border-black/10 dark:bg-white dark:text-neutral-900 dark:placeholder:text-neutral-500";
 
 export function ClientForm({
   dados,
@@ -116,7 +114,9 @@ export function ClientForm({
             ref={observacaoRef}
             placeholder="Observação (opcional)"
             value={dados.observacao}
-            onChange={(event) => onCampoChange("observacao", event.target.value)}
+            onChange={(event) =>
+              onCampoChange("observacao", event.target.value)
+            }
             onKeyDown={handleObservacaoKeyDown}
             rows={3}
             maxLength={OBSERVACAO_MAX_LENGTH}
@@ -185,7 +185,6 @@ function Campo({
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={onKeyDown}
         aria-invalid={!!erro}
-        className={CAMPO_CLASS}
       />
       {erro && (
         <p className="mt-1 text-xs text-destructive" role="alert">
@@ -219,10 +218,15 @@ function TelefoneCampo({
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
     const elemento = event.target;
     const cursorAtual = elemento.selectionStart ?? elemento.value.length;
-    const digitosAntesDoCursor = contarDigitos(elemento.value.slice(0, cursorAtual));
+    const digitosAntesDoCursor = contarDigitos(
+      elemento.value.slice(0, cursorAtual),
+    );
 
     const mascarado = mascararTelefone(elemento.value);
-    cursorDesejadoRef.current = posicaoAposNDigitos(mascarado, digitosAntesDoCursor);
+    cursorDesejadoRef.current = posicaoAposNDigitos(
+      mascarado,
+      digitosAntesDoCursor,
+    );
 
     onChange(mascarado);
   }
@@ -246,7 +250,6 @@ function TelefoneCampo({
         onChange={handleChange}
         onKeyDown={onKeyDown}
         aria-invalid={!!erro}
-        className={CAMPO_CLASS}
       />
       {erro && (
         <p className="mt-1 text-xs text-destructive" role="alert">
