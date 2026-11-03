@@ -29,9 +29,7 @@ function toService(dto: ServiceOfferingResponseDTO): Service {
     description: dto.description ?? "",
     price: dto.price,
     durationMin: dto.durationMinutes,
-    // MOCK — o backend só guarda uma imagem (imageUrl); enquanto a
-    // persistência real de múltiplas fotos não existe, tratamos essa
-    // única URL como a primeira (e única) foto do serviço.
+     // O backend guarda uma única imagem (imageUrl); ela é a primeira foto.
     photos: dto.imageUrl ? [dto.imageUrl] : [],
   };
 }
@@ -42,7 +40,7 @@ function toRequest(dados: ServiceInput): ServiceOfferingRequestDTO {
     description: dados.description.trim(),
     price: dados.price,
     durationMinutes: dados.durationMin,
-    // MOCK — ver nota acima: só a primeira foto é enviada.
+    // O backend guarda uma única imagem: só a primeira foto é persistida.
     imageUrl: dados.photos[0] ?? null,
     // TODO: expor esse campo na tela quando o fluxo de "aceita inspiração"
     // do serviço for definido no frontend.

@@ -5,3 +5,7 @@
 - npm i
 - npm run dev
 - abrir o projeto no localhost
+
+LOGIN DO ADMIN:
+login: admin@reif.com
+senha: admin123

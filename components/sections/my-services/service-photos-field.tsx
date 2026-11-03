@@ -21,6 +21,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Plus, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { uploadImagem } from "@/lib/api/upload";
 
 const TIPOS_ACEITOS = ["image/png", "image/jpeg"];
 const TAMANHO_MAX_BYTES = 5 * 1024 * 1024;
@@ -44,7 +45,7 @@ function FotoSortavel({ url, onRemover }: FotoSortavelProps) {
       {...listeners}
       className={`relative touch-none ${isDragging ? "z-10 opacity-50" : "opacity-100"}`}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element -- object URL local, sem loader do next/image */}
+      {/* eslint-disable-next-line @next/next/no-img-element -- URL externa (Azure), sem loader do next/image */}
       <img
         src={url}
         alt=""
@@ -73,18 +74,16 @@ interface ServicePhotosFieldProps {
 
 export function ServicePhotosField({ fotos, onFotosChange }: ServicePhotosFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  // Só as previews criadas aqui podem ser revogadas: as fotos que já vieram
-  // salvas continuam válidas se o usuário fechar o modal sem salvar.
-  const previewsCriadas = useRef<Set<string>>(new Set());
   const [editando, setEditando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 8 } }),
   );
 
-  function handleArquivosSelecionados(event: ChangeEvent<HTMLInputElement>) {
+  async function handleArquivosSelecionados(event: ChangeEvent<HTMLInputElement>) {
     const selecionados = Array.from(event.target.files ?? []);
     event.target.value = "";
     if (selecionados.length === 0) return;
@@ -110,19 +109,23 @@ export function ServicePhotosField({ fotos, onFotosChange }: ServicePhotosFieldP
         : null,
     );
 
-    // TODO: enviar os arquivos pra API e usar as URLs devolvidas. Enquanto o
-    // backend não existe, a preview local já serve como valor do campo.
-    const novasUrls = selecionados.slice(0, espacoDisponivel).map((file) => {
-      const url = URL.createObjectURL(file);
-      previewsCriadas.current.add(url);
-      return url;
-    });
-
-    onFotosChange([...fotos, ...novasUrls]);
+    setEnviando(true);
+    try {
+      // Envia pro Azure (via API) e guarda as URLs públicas devolvidas.
+      const novasUrls = await Promise.all(
+        selecionados
+          .slice(0, espacoDisponivel)
+          .map((file) => uploadImagem("services", file)),
+      );
+      onFotosChange([...fotos, ...novasUrls]);
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Não foi possível enviar a imagem.");
+    } finally {
+      setEnviando(false);
+    }
   }
 
   function removerFoto(url: string) {
-    if (previewsCriadas.current.delete(url)) URL.revokeObjectURL(url);
     const restantes = fotos.filter((foto) => foto !== url);
     onFotosChange(restantes);
     setErro(null);
@@ -145,10 +148,11 @@ export function ServicePhotosField({ fotos, onFotosChange }: ServicePhotosFieldP
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
+        disabled={enviando}
         aria-label="Adicionar foto"
-        className="flex aspect-square w-full items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="flex aspect-square w-full items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
       >
-        <Plus className="size-5" />
+        {enviando ? <span className="text-xs">Enviando…</span> : <Plus className="size-5" />}
       </button>
     </li>
   );
@@ -187,7 +191,7 @@ export function ServicePhotosField({ fotos, onFotosChange }: ServicePhotosFieldP
         <ul className="grid grid-cols-3 gap-3">
           {fotos.map((url) => (
             <li key={url}>
-              {/* eslint-disable-next-line @next/next/no-img-element -- object URL local, sem loader do next/image */}
+              {/* eslint-disable-next-line @next/next/no-img-element -- URL externa (Azure), sem loader do next/image */}
               <img
                 src={url}
                 alt=""
