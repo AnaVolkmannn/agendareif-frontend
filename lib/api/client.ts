@@ -19,18 +19,31 @@ function getToken(): string | null {
   return localStorage.getItem("token");
 }
 
-export async function api<T>(path: string, options: ApiOptions = {}): Promise<T> {
+export async function api<T>(
+  path: string,
+  options: ApiOptions = {},
+): Promise<T> {
   const { body, auth = true, headers, ...rest } = options;
   const token = auth ? getToken() : null;
+
+  // FormData (upload de arquivo) vai como está: o navegador monta o
+  // Content-Type multipart com o boundary. Forçar JSON aqui quebra o upload.
+  const isFormData =
+    typeof FormData !== "undefined" && body instanceof FormData;
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...rest,
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...headers,
     },
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+    body:
+      body === undefined
+        ? undefined
+        : isFormData
+          ? (body as FormData)
+          : JSON.stringify(body),
   });
 
   if (!response.ok) {
