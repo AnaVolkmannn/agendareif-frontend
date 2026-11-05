@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, Images } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
@@ -12,24 +12,25 @@ interface ServiceCardProps {
   service: Service;
   selected: boolean;
   onSelect: (service: Service) => void;
-  onVerFotos: (service: Service) => void;
+  /** Abre a foto de índice `index` ampliada. */
+  onAbrirFoto: (service: Service, index: number) => void;
 }
 
 export function ServiceCard({
   service,
   selected,
   onSelect,
-  onVerFotos,
+  onAbrirFoto,
 }: ServiceCardProps) {
   const [descricaoAberta, setDescricaoAberta] = useState(false);
 
   const descricao = service.description?.trim();
-  const totalFotos = service.photos?.length ?? 0;
+  const fotos = service.photos ?? [];
 
   return (
     <div className="rounded-2xl bg-card p-4 text-card-foreground shadow-sm">
-      {/* Só o bloco nome/preço + indicador seleciona: o chevron e o "Ver
-          fotos" são controles próprios e não podem ficar dentro de um botão. */}
+      {/* Só o bloco nome/preço + indicador seleciona: o chevron e as
+          miniaturas são controles próprios e não podem ficar dentro de um botão. */}
       <Button
         type="button"
         variant="ghost"
@@ -85,16 +86,27 @@ export function ServiceCard({
         </div>
       )}
 
-      {totalFotos > 0 && (
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() => onVerFotos(service)}
-          className="mt-3 h-8 gap-1.5 rounded-lg bg-primary/10 px-3 text-[13px] font-normal text-primary hover:bg-primary/20 hover:text-primary"
-        >
-          <Images className="size-4" />
-          Ver fotos
-        </Button>
+      {fotos.length > 0 && (
+        <ul className="mt-3 flex gap-2 overflow-x-auto pb-1">
+          {fotos.map((url, index) => (
+            <li key={url} className="shrink-0">
+              <button
+                type="button"
+                onClick={() => onAbrirFoto(service, index)}
+                aria-label={`Ampliar foto ${index + 1} de ${fotos.length} do serviço ${service.name}`}
+                className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element -- URL externa (Azure), sem loader do next/image */}
+                <img
+                  src={url}
+                  alt=""
+                  loading="lazy"
+                  className="size-16 rounded-lg border border-border/60 object-cover transition hover:opacity-80 md:size-20"
+                />
+              </button>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );

@@ -1,5 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -12,40 +16,89 @@ import type { Service } from "@/types/service";
 interface ServicePhotosDialogProps {
   /** null = fechado. */
   service: Service | null;
+  /** Índice da foto ampliada. */
+  index: number;
+  onIndexChange: (index: number) => void;
   onOpenChange: (open: boolean) => void;
 }
 
-/** Galeria das fotos que o profissional anexou ao serviço. */
+/** Visualizador ampliado das fotos do serviço. */
 export function ServicePhotosDialog({
   service,
+  index,
+  onIndexChange,
   onOpenChange,
 }: ServicePhotosDialogProps) {
   const fotos = service?.photos ?? [];
+  const total = fotos.length;
+  const atual = fotos[index];
+
+  function anterior() {
+    onIndexChange((index - 1 + total) % total);
+  }
+
+  function proxima() {
+    onIndexChange((index + 1) % total);
+  }
+
+  // Setas do teclado para navegar enquanto o visualizador está aberto.
+  useEffect(() => {
+    if (!service || total < 2) return;
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "ArrowLeft") onIndexChange((index - 1 + total) % total);
+      if (event.key === "ArrowRight") onIndexChange((index + 1) % total);
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [service, index, total, onIndexChange]);
 
   return (
     <Dialog open={!!service} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto">
-        <DialogHeader className="mb-4">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogHeader className="mb-3">
           <DialogTitle className="text-left text-lg">{service?.name}</DialogTitle>
           <DialogDescription className="text-left">
-            {fotos.length === 1
-              ? "1 foto anexada pelo profissional"
-              : `${fotos.length} fotos anexadas pelo profissional`}
+            Foto {Math.min(index + 1, total)} de {total}
           </DialogDescription>
         </DialogHeader>
 
-        <ul className="grid grid-cols-2 gap-3">
-          {fotos.map((url) => (
-            <li key={url}>
-              {/* eslint-disable-next-line @next/next/no-img-element -- URL vinda da API/preview local, sem loader do next/image */}
-              <img
-                src={url}
-                alt={`Foto do serviço ${service?.name}`}
-                className="aspect-square w-full rounded-xl border border-border/60 object-cover"
-              />
-            </li>
-          ))}
-        </ul>
+        {atual && (
+          <div className="relative">
+            {/* eslint-disable-next-line @next/next/no-img-element -- URL externa (Azure), sem loader do next/image */}
+            <img
+              src={atual}
+              alt={`Foto ${index + 1} do serviço ${service?.name}`}
+              className="max-h-[65vh] w-full rounded-xl border border-border/60 bg-muted object-contain"
+            />
+
+            {total > 1 && (
+              <>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="icon"
+                  onClick={anterior}
+                  aria-label="Foto anterior"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full opacity-90"
+                >
+                  <ChevronLeft className="size-5" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="icon"
+                  onClick={proxima}
+                  aria-label="Próxima foto"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full opacity-90"
+                >
+                  <ChevronRight className="size-5" />
+                </Button>
+              </>
+            )}
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
