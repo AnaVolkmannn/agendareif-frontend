@@ -34,7 +34,11 @@ function ServiceSelectionContent() {
   // Se a tela for reaberta com o serviço já na URL (voltar/refresh/link
   // compartilhado), a seleção anterior volta marcada.
   const [selectedId, setSelectedId] = useState<string | null>(serviceIdFromUrl);
-  const [fotosDoServico, setFotosDoServico] = useState<Service | null>(null);
+  // Foto ampliada: qual serviço e qual foto (índice). null = visualizador fechado.
+  const [fotoAberta, setFotoAberta] = useState<{
+    service: Service;
+    index: number;
+  } | null>(null);
 
   // Busca na API os serviços do profissional escolhido. Não mexe no status aqui
   // dentro: o estado inicial já é "loading" e o retry cuida do próprio reset.
@@ -148,7 +152,7 @@ function ServiceSelectionContent() {
                 service={service}
                 selected={selectedId === service.id}
                 onSelect={selectService}
-                onVerFotos={setFotosDoServico}
+                onAbrirFoto={(s, index) => setFotoAberta({ service: s, index })}
               />
             </li>
           ))}
@@ -167,9 +171,13 @@ function ServiceSelectionContent() {
       </div>
 
       <ServicePhotosDialog
-        service={fotosDoServico}
+        service={fotoAberta?.service ?? null}
+        index={fotoAberta?.index ?? 0}
+        onIndexChange={(index) =>
+          setFotoAberta((atual) => (atual ? { ...atual, index } : atual))
+        }
         onOpenChange={(open) => {
-          if (!open) setFotosDoServico(null);
+          if (!open) setFotoAberta(null);
         }}
       />
     </BookingShell>
