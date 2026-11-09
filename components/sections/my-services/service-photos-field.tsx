@@ -21,11 +21,13 @@ import { CSS } from "@dnd-kit/utilities";
 import { Plus, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { MAX_FOTOS_SERVICO } from "@/lib/api/services";
 import { uploadImagem } from "@/lib/api/upload";
 
 const TIPOS_ACEITOS = ["image/png", "image/jpeg"];
 const TAMANHO_MAX_BYTES = 5 * 1024 * 1024;
-const MAX_FOTOS = 6;
+/** Vem do módulo da API para não divergir do limite validado no backend. */
+const MAX_FOTOS = MAX_FOTOS_SERVICO;
 
 interface FotoSortavelProps {
   url: string;
