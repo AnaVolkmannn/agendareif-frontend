@@ -22,6 +22,7 @@ interface SchedulingRequestDTO {
   professionalId: number;
   serviceId: number;
   scheduledAt: string;
+  imageUrl: string | null;
 }
 
 interface SchedulingResponseDTO {
@@ -39,6 +40,8 @@ export interface AgendamentoSelecionado {
   serviceId: string;
   /** "2026-10-27T09:00:00" — valor exato devolvido por /schedulings/available-slots */
   scheduledAt: string;
+  /** Imagem de inspiração já enviada ao storage. A etapa é opcional. */
+  imagemUrl?: string;
 }
 
 export interface ConfirmarAgendamentoResult {
@@ -130,6 +133,7 @@ export async function confirmarAgendamento(
       professionalId: Number(agendamento.professionalId),
       serviceId: Number(agendamento.serviceId),
       scheduledAt: agendamento.scheduledAt,
+      imageUrl: agendamento.imagemUrl ?? null,
     };
 
     await api<SchedulingResponseDTO>("/schedulings", {

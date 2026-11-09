@@ -153,6 +153,7 @@ export default function DashboardPage() {
                 status: "disponivel",
                 service: null,
                 client: null,
+                inspiracaoUrl: null,
               }
             : a,
         ),

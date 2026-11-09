@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import type { Appointment } from "@/lib/api/agenda";
+import { PhotoViewer } from "@/components/sections/portfolio-professionals/photo-viewer";
 
 interface AppointmentRowProps {
   appointment: Appointment;
@@ -10,6 +12,10 @@ interface AppointmentRowProps {
 
 export function AppointmentRow({ appointment, onDeleteClick }: AppointmentRowProps) {
   const isDisponivel = appointment.status === "disponivel";
+  const [ampliada, setAmpliada] = useState(false);
+
+  // Horário cancelado volta a ficar livre, então não mostra inspiração.
+  const inspiracaoUrl = isDisponivel ? null : appointment.inspiracaoUrl;
 
   return (
     <div className="flex items-center gap-3 rounded-xl bg-card px-4 py-3 shadow-sm">
@@ -27,6 +33,23 @@ export function AppointmentRow({ appointment, onDeleteClick }: AppointmentRowPro
           </>
         )}
       </div>
+
+      {inspiracaoUrl && (
+        <button
+          type="button"
+          onClick={() => setAmpliada(true)}
+          aria-label="Ver imagem de inspiração do cliente"
+          title="Imagem de inspiração"
+          className="size-10 shrink-0 overflow-hidden rounded-lg ring-1 ring-border transition hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element -- URL do Azure Blob, sem domínio configurado em next.config.ts */}
+          <img src={inspiracaoUrl} alt="" className="h-full w-full object-cover" />
+        </button>
+      )}
+
+      {ampliada && inspiracaoUrl && (
+        <PhotoViewer url={inspiracaoUrl} onClose={() => setAmpliada(false)} />
+      )}
 
       <button
         type="button"

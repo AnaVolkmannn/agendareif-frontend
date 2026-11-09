@@ -6,6 +6,8 @@ export interface Appointment {
   service: string | null;
   client: string | null;
   status: "ocupado" | "disponivel";
+  /** Imagem de referência enviada pelo cliente. Null quando ele pulou a etapa. */
+  inspiracaoUrl: string | null;
 }
 
 interface SchedulingResponse {
@@ -57,6 +59,7 @@ function converterAgendamento(item: SchedulingResponse): Appointment {
     service: item.serviceName,
     client: item.clientName,
     status: item.canceled ? "disponivel" : "ocupado",
+    inspiracaoUrl: item.imageUrl,
   };
 }
 

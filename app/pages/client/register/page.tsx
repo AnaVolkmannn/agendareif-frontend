@@ -82,6 +82,8 @@ function ConfirmacaoContent() {
       professionalId: profissionalId,
       serviceId,
       scheduledAt,
+      // Respeita quem removeu a inspiração aqui no resumo.
+      imagemUrl: temInspiracaoEfetiva ? (imagemUrlParam ?? undefined) : undefined,
     });
 
     if (resultado.sucesso) {
