@@ -9,7 +9,7 @@ import { BackButton } from "@/components/sections/booking/back-button";
 import { BookingShell } from "@/components/sections/booking/booking-shell";
 import { Button } from "@/components/ui/button";
 import { markNavigatedWithinApp } from "@/lib/app-nav-state";
-import { uploadImagemInspiracao } from "@/app/mocks/professionals-mock";
+import { uploadImagem } from "@/lib/api/upload";
 
 const TIPOS_ACEITOS = ["image/png", "image/jpeg"];
 const TAMANHO_MAX_BYTES = 10 * 1024 * 1024;
@@ -84,10 +84,11 @@ function SelecInspiracaoContent() {
     setEnviando(true);
     setErro(null);
     try {
-      const resultado = await uploadImagemInspiracao(arquivo);
+      // Rota pública: o cliente envia a inspiração antes de ter conta (RF05).
+      const url = await uploadImagem("inspiration", arquivo);
       const params = buildParamsBase();
       params.set("temInspiracao", "true");
-      params.set("imagemUrl", resultado.url);
+      params.set("imagemUrl", url);
       markNavigatedWithinApp();
       router.push(`/pages/client/register?${params.toString()}`);
     } catch {
