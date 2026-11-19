@@ -12,6 +12,8 @@ export interface Service {
   photos?: string[];
   /** Duração estimada em minutos. Ex: 90 => "90min". */
   durationMin?: number;
+  /** RF06: se o cliente pode anexar imagem de inspiração neste serviço. */
+  acceptsInspiration?: boolean;
 }
 
 /** Dados do formulário de cadastro/edição de serviço. */
@@ -21,4 +23,5 @@ export interface ServiceInput {
   durationMin: number;
   price: number;
   photos: string[];
+  acceptsInspiration: boolean;
 }
