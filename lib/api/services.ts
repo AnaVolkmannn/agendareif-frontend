@@ -2,16 +2,15 @@ import { api } from "@/lib/api/client";
 import { getProfessionalId } from "@/lib/auth/session";
 import type { Service, ServiceInput } from "@/types/service";
 
-/** Mesmo limite validado no backend (ServiceOfferingRequestDTO.MAX_PHOTOS). */
+/** Limite de fotos por serviço (igual ao MAX_PHOTOS do backend). */
 export const MAX_FOTOS_SERVICO = 5;
 
 interface ServiceOfferingResponseDTO {
   id: number;
   professionalId: number;
   name: string;
-  /** Espelha a primeira foto; mantido pelo backend por compatibilidade. */
   imageUrl: string | null;
-  photos: string[] | null;
+  photos?: string[];
   price: number;
   description: string | null;
   durationMinutes: number;
@@ -29,36 +28,28 @@ interface ServiceOfferingRequestDTO {
 }
 
 function toService(dto: ServiceOfferingResponseDTO): Service {
-  // photos ausente só acontece contra um backend antigo; aí a imageUrl
-  // sozinha vira a lista.
-  const photos =
-    dto.photos ?? (dto.imageUrl ? [dto.imageUrl] : []);
-
   return {
     id: String(dto.id),
     name: dto.name,
     description: dto.description ?? "",
     price: dto.price,
     durationMin: dto.durationMinutes,
-    photos,
+    // Serviços antigos só têm imageUrl; os novos têm a lista completa em photos.
+    photos: dto.photos?.length ? dto.photos : dto.imageUrl ? [dto.imageUrl] : [],
+    acceptsInspiration: dto.acceptsInspiration ?? false,
   };
 }
 
 function toRequest(dados: ServiceInput): ServiceOfferingRequestDTO {
-  const photos = dados.photos.slice(0, MAX_FOTOS_SERVICO);
-
   return {
     name: dados.name.trim(),
     description: dados.description.trim(),
     price: dados.price,
     durationMinutes: dados.durationMin,
-    photos,
-    // O backend já espelha a primeira foto aqui; mandamos junto para o
-    // caso de o serviço ficar sem nenhuma.
-    imageUrl: photos[0] ?? null,
-    // TODO: expor esse campo na tela quando o fluxo de "aceita inspiração"
-    // do serviço for definido no frontend.
-    acceptsInspiration: false,
+    imageUrl: dados.photos[0] ?? null,
+    photos: dados.photos.slice(0, MAX_FOTOS_SERVICO),
+    // RF06: o profissional define, serviço a serviço, se aceita inspiração.
+    acceptsInspiration: dados.acceptsInspiration,
   };
 }
 

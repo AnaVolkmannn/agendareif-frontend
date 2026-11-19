@@ -100,6 +100,8 @@ function ServiceSelectionContent() {
     const params = new URLSearchParams(searchParams.toString());
     params.set("serviceId", chosen.id);
     params.set("serviceName", chosen.name);
+    // RF06: define se a tela de upload de inspiração aparece mais adiante.
+    params.set("acceptsInspiration", String(chosen.acceptsInspiration ?? false));
 
     markNavigatedWithinApp();
     router.push(`/pages/client/select-scheduling?${params.toString()}`);
