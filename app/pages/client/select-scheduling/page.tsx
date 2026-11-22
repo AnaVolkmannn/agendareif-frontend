@@ -96,7 +96,19 @@ function SchedulingContent() {
     params.set("data", selectedSlot.isoDateTime.slice(0, 10));
     params.set("hora", selectedSlot.time);
 
+    // RF06: se o profissional não habilitou inspiração neste serviço, a tela
+    // de upload não aparece e o fluxo segue direto para o cadastro.
+    const aceitaInspiracao = searchParams.get("acceptsInspiration") !== "false";
+
     markNavigatedWithinApp();
+
+    if (!aceitaInspiracao) {
+      params.set("temInspiracao", "false");
+      params.delete("imagemUrl");
+      router.push(`/pages/client/register?${params.toString()}`);
+      return;
+    }
+
     router.push(`/pages/client/addinspiration?${params.toString()}`);
   }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Upload, X } from "lucide-react";
@@ -26,11 +26,23 @@ function SelecInspiracaoContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // RF06: serviço sem inspiração habilitada não mostra esta tela.
+  const aceitaInspiracao = searchParams.get("acceptsInspiration") !== "false";
+
   const inputRef = useRef<HTMLInputElement>(null);
   const [arquivo, setArquivo] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+
+  useEffect(() => {
+    if (aceitaInspiracao) return;
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("temInspiracao", "false");
+    params.delete("imagemUrl");
+    router.replace(`/pages/client/register?${params.toString()}`);
+  }, [aceitaInspiracao, searchParams, router]);
 
   function buildParamsBase() {
     // Preserva todos os params das etapas anteriores (profissional, serviços, data/hora).
@@ -97,6 +109,8 @@ function SelecInspiracaoContent() {
       setEnviando(false);
     }
   }
+
+  if (!aceitaInspiracao) return null;
 
   return (
     <BookingShell>

@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { ServicePhotosField } from "@/components/sections/my-services/service-photos-field";
+import { InspirationToggleField } from "@/components/sections/my-services/inspiration-toggle-field";
 import { mascararPreco, numeroParaPreco, precoParaNumero } from "@/lib/validations";
 import { atualizarServico, criarServico } from "@/lib/api/services";
 import type { Service } from "@/types/service";
@@ -52,6 +53,9 @@ export function ServiceFormDialog({
   );
   const [preco, setPreco] = useState(servico ? numeroParaPreco(servico.price) : "");
   const [fotos, setFotos] = useState<string[]>(servico?.photos ?? []);
+  const [aceitaInspiracao, setAceitaInspiracao] = useState(
+    servico?.acceptsInspiration ?? false
+  );
   const [erros, setErros] = useState<Erros>({});
   const [erroGeral, setErroGeral] = useState<string | null>(null);
   const [salvando, setSalvando] = useState(false);
@@ -83,6 +87,7 @@ export function ServiceFormDialog({
       durationMin: Number(duracao),
       price: precoParaNumero(preco),
       photos: fotos,
+      acceptsInspiration: aceitaInspiracao,
     };
 
     setErroGeral(null);
@@ -112,6 +117,7 @@ export function ServiceFormDialog({
     setDuracao("");
     setPreco("");
     setFotos([]);
+    setAceitaInspiracao(false);
     setErros({});
     setErroGeral(null);
   }
@@ -199,6 +205,11 @@ export function ServiceFormDialog({
           </div>
 
           <ServicePhotosField fotos={fotos} onFotosChange={setFotos} />
+
+          <InspirationToggleField
+            checked={aceitaInspiracao}
+            onCheckedChange={setAceitaInspiracao}
+          />
         </div>
 
         {erroGeral && (
