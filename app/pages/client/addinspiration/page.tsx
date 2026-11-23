@@ -148,7 +148,7 @@ function SelecInspiracaoContent() {
       </Button>
 
       {erro && (
-        <p className="mt-3 text-[13px] text-red-300" role="alert">
+        <p className="mt-3 text-[13px] text-destructive" role="alert">
           {erro}
         </p>
       )}
@@ -167,7 +167,7 @@ function SelecInspiracaoContent() {
             type="button"
             onClick={removerImagem}
             aria-label="Remover imagem selecionada"
-            className="absolute -right-3 -top-3 flex size-8 items-center justify-center rounded-full bg-white text-black shadow-md ring-1 ring-black/10 transition hover:bg-neutral-100 active:scale-95 md:size-7"
+            className="absolute -right-3 -top-3 flex size-8 items-center justify-center rounded-full bg-background text-foreground shadow-md ring-1 ring-border transition hover:bg-muted active:scale-95 md:size-7"
           >
             <X className="size-4 md:size-3.5" />
           </button>
