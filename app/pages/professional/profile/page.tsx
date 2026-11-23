@@ -3,7 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, LogOut, Loader2 } from "lucide-react";
+import {
+  ChevronDown,
+  Circle,
+  CircleCheck,
+  Eye,
+  EyeOff,
+  LogOut,
+  Loader2,
+} from "lucide-react";
 
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuth } from "@/auth/AuthContext";
@@ -24,6 +32,8 @@ import {
   contarDigitos,
   mascararTelefone,
   posicaoAposNDigitos,
+  requisitosDaSenha,
+  senhaValida,
   validarEmail,
   validarTelefone,
 } from "@/lib/validations";
@@ -33,6 +43,21 @@ import type { Profissional } from "@/types/profissional";
 function digitosParaTelefoneMascarado(digitos: string): string {
   const semDdi = digitos.length > 11 ? digitos.slice(-11) : digitos;
   return mascararTelefone(semDdi);
+}
+
+/**
+ * A API lança IllegalArgumentException("Senha atual incorreta") sem
+ * @ControllerAdvice, então o Spring devolve 403 de corpo vazio. Como o id
+ * enviado é o do próprio usuário logado, aqui o 403 significa senha atual
+ * recusada. O 400 vem da validação da senha nova no backend.
+ */
+function mensagemErroSenha(err: unknown): string {
+  if (err instanceof ApiError) {
+    if (err.status === 403) return "Senha atual incorreta.";
+    if (err.status === 400) return "A nova senha não atende aos requisitos.";
+    return err.message;
+  }
+  return "Não foi possível alterar a senha. Tente novamente.";
 }
 
 type StatusPerfil = "loading" | "success" | "error";
@@ -62,9 +87,17 @@ export default function ProfilePage() {
   const [senhaAberta, setSenhaAberta] = useState(false);
   const [senhaAtual, setSenhaAtual] = useState("");
   const [novaSenha, setNovaSenha] = useState("");
+  const [confirmacao, setConfirmacao] = useState("");
+  const [mostrarSenhaAtual, setMostrarSenhaAtual] = useState(false);
+  const [mostrarNovaSenha, setMostrarNovaSenha] = useState(false);
+  const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
   const [erroSenha, setErroSenha] = useState<string | null>(null);
   const [alterandoSenha, setAlterandoSenha] = useState(false);
   const [senhaAlterada, setSenhaAlterada] = useState(false);
+
+  const requisitos = requisitosDaSenha(novaSenha, confirmacao);
+  const podeConfirmarSenha =
+    !!senhaAtual && senhaValida(novaSenha, confirmacao) && !alterandoSenha;
 
   // Depende só do id (e não do objeto session): o changePassword troca a
   // sessão e, com [session], o perfil recarregaria apagando o que está na tela.
@@ -164,8 +197,8 @@ export default function ProfilePage() {
       setErroSenha("Informe sua senha atual.");
       return;
     }
-    if (novaSenha.length < 8) {
-      setErroSenha("A nova senha precisa ter pelo menos 8 caracteres.");
+    if (!senhaValida(novaSenha, confirmacao)) {
+      setErroSenha("A nova senha não atende a todos os requisitos.");
       return;
     }
 
@@ -177,12 +210,12 @@ export default function ProfilePage() {
       setSenhaAlterada(true);
       setSenhaAtual("");
       setNovaSenha("");
+      setConfirmacao("");
+      setMostrarSenhaAtual(false);
+      setMostrarNovaSenha(false);
+      setMostrarConfirmacao(false);
     } catch (err) {
-      setErroSenha(
-        err instanceof ApiError
-          ? err.message
-          : "Não foi possível alterar a senha. Tente novamente.",
-      );
+      setErroSenha(mensagemErroSenha(err));
     } finally {
       setAlterandoSenha(false);
     }
@@ -191,7 +224,7 @@ export default function ProfilePage() {
   function handleSenhaKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Enter") {
       event.preventDefault();
-      handleConfirmarSenha();
+      if (podeConfirmarSenha) handleConfirmarSenha();
     }
   }
 
@@ -370,29 +403,133 @@ export default function ProfilePage() {
                 <div className="flex flex-col gap-4 border-t border-border/60 p-4">
                   <div className="flex flex-col gap-1.5">
                     <Label htmlFor="perfil-senha-atual">Senha atual</Label>
-                    <Input
-                      id="perfil-senha-atual"
-                      type="password"
-                      autoComplete="current-password"
-                      value={senhaAtual}
-                      onChange={(e) => setSenhaAtual(e.target.value)}
-                      onKeyDown={handleSenhaKeyDown}
-                      aria-invalid={!!erroSenha}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="perfil-senha-atual"
+                        type={mostrarSenhaAtual ? "text" : "password"}
+                        autoComplete="current-password"
+                        value={senhaAtual}
+                        onChange={(e) => setSenhaAtual(e.target.value)}
+                        onKeyDown={handleSenhaKeyDown}
+                        aria-invalid={!!erroSenha}
+                        className="pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setMostrarSenhaAtual((atual) => !atual)}
+                        aria-label={
+                          mostrarSenhaAtual
+                            ? "Ocultar senha atual"
+                            : "Mostrar senha atual"
+                        }
+                        className="absolute right-1 top-1/2 size-7 -translate-y-1/2 text-neutral-500 hover:bg-transparent hover:text-neutral-700"
+                      >
+                        {mostrarSenhaAtual ? (
+                          <EyeOff className="size-4" />
+                        ) : (
+                          <Eye className="size-4" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="flex flex-col gap-1.5">
                     <Label htmlFor="perfil-senha-nova">Nova senha</Label>
-                    <Input
-                      id="perfil-senha-nova"
-                      type="password"
-                      autoComplete="new-password"
-                      value={novaSenha}
-                      onChange={(e) => setNovaSenha(e.target.value)}
-                      onKeyDown={handleSenhaKeyDown}
-                      aria-invalid={!!erroSenha}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="perfil-senha-nova"
+                        type={mostrarNovaSenha ? "text" : "password"}
+                        autoComplete="new-password"
+                        value={novaSenha}
+                        onChange={(e) => setNovaSenha(e.target.value)}
+                        onKeyDown={handleSenhaKeyDown}
+                        aria-invalid={!!erroSenha}
+                        className="pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setMostrarNovaSenha((atual) => !atual)}
+                        aria-label={
+                          mostrarNovaSenha
+                            ? "Ocultar nova senha"
+                            : "Mostrar nova senha"
+                        }
+                        className="absolute right-1 top-1/2 size-7 -translate-y-1/2 text-neutral-500 hover:bg-transparent hover:text-neutral-700"
+                      >
+                        {mostrarNovaSenha ? (
+                          <EyeOff className="size-4" />
+                        ) : (
+                          <Eye className="size-4" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="perfil-senha-confirmacao">
+                      Confirmar nova senha
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="perfil-senha-confirmacao"
+                        type={mostrarConfirmacao ? "text" : "password"}
+                        autoComplete="new-password"
+                        value={confirmacao}
+                        onChange={(e) => setConfirmacao(e.target.value)}
+                        onKeyDown={handleSenhaKeyDown}
+                        aria-invalid={!!erroSenha}
+                        className="pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setMostrarConfirmacao((atual) => !atual)}
+                        aria-label={
+                          mostrarConfirmacao
+                            ? "Ocultar confirmação da senha"
+                            : "Mostrar confirmação da senha"
+                        }
+                        className="absolute right-1 top-1/2 size-7 -translate-y-1/2 text-neutral-500 hover:bg-transparent hover:text-neutral-700"
+                      >
+                        {mostrarConfirmacao ? (
+                          <EyeOff className="size-4" />
+                        ) : (
+                          <Eye className="size-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <ul className="flex flex-col gap-2">
+                    {requisitos.map((requisito) => (
+                      <li
+                        key={requisito.id}
+                        className={`flex items-center gap-2 text-sm ${
+                          requisito.atendido
+                            ? "text-green-600"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        {requisito.atendido ? (
+                          <CircleCheck
+                            aria-hidden
+                            className="size-5 shrink-0 fill-green-600 stroke-background"
+                          />
+                        ) : (
+                          <Circle
+                            aria-hidden
+                            className="size-5 shrink-0 fill-neutral-200 stroke-neutral-200"
+                          />
+                        )}
+                        {requisito.label}
+                      </li>
+                    ))}
+                  </ul>
 
                   {erroSenha && (
                     <p className="text-[13px] text-destructive" role="alert">
@@ -408,7 +545,7 @@ export default function ProfilePage() {
                   <Button
                     type="button"
                     onClick={handleConfirmarSenha}
-                    disabled={alterandoSenha}
+                    disabled={!podeConfirmarSenha}
                     className="h-11 w-full gap-2 rounded-xl text-[15px] font-semibold"
                   >
                     {alterandoSenha ? (

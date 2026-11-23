@@ -14,6 +14,10 @@ export function ProfessionalCard({ profissional, onEscolher }: ProfessionalCardP
   // em vez de abrir uma conversa com o número errado.
   const whatsappHref = linkWhatsapp(profissional.whatsapp);
 
+  // RF03: no modo manual o profissional não aceita agendamento pelo site, então
+  // o cliente só pode falar com ele pelo WhatsApp (sem o botão "Selecionar").
+  const modoManual = profissional.modoAgendamento === "MANUAL";
+
   return (
     <article className="flex h-full min-h-[132px] gap-4 rounded-3xl bg-input p-4 text-secondary-foreground md:min-h-[140px]">
       <div className="h-[78px] w-[78px] shrink-0 overflow-hidden rounded-xl bg-white md:h-24 md:w-24">
@@ -35,13 +39,15 @@ export function ProfessionalCard({ profissional, onEscolher }: ProfessionalCardP
         </p>
 
         <div className="mt-auto flex flex-col gap-2 sm:flex-row">
-          <Button
-            type="button"
-            onClick={() => onEscolher(profissional)}
-            className="h-11 w-full rounded-xl text-[14px] font-semibold sm:flex-1"
-          >
-            Selecionar
-          </Button>
+          {!modoManual && (
+            <Button
+              type="button"
+              onClick={() => onEscolher(profissional)}
+              className="h-11 w-full rounded-xl text-[14px] font-semibold sm:flex-1"
+            >
+              Selecionar
+            </Button>
+          )}
 
           {whatsappHref && (
             <Button
@@ -54,6 +60,13 @@ export function ProfessionalCard({ profissional, onEscolher }: ProfessionalCardP
               <WhatsAppIcon />
               WhatsApp
             </Button>
+          )}
+
+          {modoManual && !whatsappHref && (
+            <p className="text-[13px] leading-snug text-foreground/60">
+              Este profissional atende por mensagem, mas ainda não informou um
+              WhatsApp para contato.
+            </p>
           )}
         </div>
       </div>
