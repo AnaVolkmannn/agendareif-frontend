@@ -96,15 +96,28 @@ export function CalendarMonth({
               key={i}
               disabled={!isAvailable || isLoading}
               onClick={() => onSelectDay(day)}
-              className={`mx-auto flex size-8 items-center justify-center rounded-full transition ${
+              aria-label={
+                isAvailable ? `Dia ${day}, com horário disponível` : `Dia ${day}, sem horário`
+              }
+              className={cn(
+                "relative mx-auto flex size-8 items-center justify-center rounded-full transition",
                 isSelected
                   ? "bg-primary text-primary-foreground"
                   : isAvailable
                     ? "cursor-pointer text-foreground hover:bg-muted"
                     : "cursor-default text-muted-foreground/40"
-              }`}
+              )}
             >
               {day}
+
+              {/* Marca o dia com vaga. No dia selecionado o próprio
+                  preenchimento já diz isso, então a bolinha sai. */}
+              {isAvailable && !isSelected && (
+                <span
+                  aria-hidden="true"
+                  className="absolute bottom-0.5 size-1.5 rounded-full bg-emerald-500"
+                />
+              )}
             </button>
           );
         })}

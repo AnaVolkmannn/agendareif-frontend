@@ -49,10 +49,36 @@ export async function getAvailableSlots(
 }
 
 /**
- * Dias selecionáveis: de hoje até 3 meses à frente. Não existe endpoint
- * de disponibilidade por mês, então aqui só aplicamos a janela de tempo
- * permitida — a disponibilidade real de cada dia é checada ao vivo
- * quando o cliente seleciona um dia (getAvailableSlots).
+ * GET /schedulings/available-days — rota pública. Devolve os dias do mês
+ * em que sobra pelo menos um horário livre, numa única chamada.
+ *
+ * É o que permite marcar os dias com vaga e desabilitar o resto antes de
+ * o cliente clicar. Checar dia a dia pelo getAvailableSlots custaria ~30
+ * requisições a cada troca de mês.
+ */
+export async function getDiasComHorario(
+  professionalId: number,
+  serviceId: number,
+  year: number,
+  /** 0-11, como no Date do JavaScript. */
+  month: number,
+): Promise<number[]> {
+  const params = new URLSearchParams({
+    professionalId: String(professionalId),
+    serviceId: String(serviceId),
+    year: String(year),
+    // O backend espera 1-12.
+    month: String(month + 1),
+  });
+
+  return api<number[]>(`/schedulings/available-days?${params.toString()}`, {
+    auth: false,
+  });
+}
+
+/**
+ * Dias selecionáveis: de hoje até 3 meses à frente. Aplica só a janela de
+ * tempo permitida; quais desses dias têm vaga vem do getDiasComHorario.
  */
 export function getSelectableDays(year: number, month: number): number[] {
   const today = new Date();
