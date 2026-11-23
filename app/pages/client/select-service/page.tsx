@@ -128,7 +128,7 @@ function ServiceSelectionContent() {
 
       {status === "error" && (
         <div role="alert">
-          <p className="text-sm text-red-300">
+          <p className="text-sm text-destructive">
             Não foi possível carregar os serviços agora. Tente novamente em instantes.
           </p>
           <Button

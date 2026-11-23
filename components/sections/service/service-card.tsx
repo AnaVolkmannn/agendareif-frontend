@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -23,9 +23,30 @@ export function ServiceCard({
   onAbrirFoto,
 }: ServiceCardProps) {
   const [descricaoAberta, setDescricaoAberta] = useState(false);
+  const [descricaoCortada, setDescricaoCortada] = useState(false);
+  const descricaoRef = useRef<HTMLParagraphElement>(null);
 
   const descricao = service.description?.trim();
   const fotos = service.photos ?? [];
+
+  // Descrição curta cabe nas duas linhas e não tem o que expandir, então a
+  // seta só aparece quando o texto está mesmo cortado. Medimos só enquanto
+  // está recolhido: aberto, o elemento cresce e nunca sobra nada.
+  useEffect(() => {
+    const elemento = descricaoRef.current;
+    if (!elemento || descricaoAberta) return;
+
+    // O primeiro disparo do observer já serve de medição inicial, e os
+    // seguintes cobrem a troca de largura da tela (o corte muda com ela).
+    const observer = new ResizeObserver(() => {
+      setDescricaoCortada(elemento.scrollHeight > elemento.clientHeight + 1);
+    });
+    observer.observe(elemento);
+    return () => observer.disconnect();
+  }, [descricao, descricaoAberta]);
+
+  // Aberta, a seta precisa continuar lá para dar como recolher.
+  const mostrarSeta = descricaoCortada || descricaoAberta;
 
   return (
     <div className="rounded-2xl bg-card p-4 text-card-foreground shadow-sm">
@@ -59,6 +80,7 @@ export function ServiceCard({
       {descricao && (
         <div className="mt-2 flex items-start gap-2">
           <p
+            ref={descricaoRef}
             className={cn(
               "min-w-0 flex-1 text-[13px] leading-snug text-muted-foreground",
               !descricaoAberta && "line-clamp-2"
@@ -66,23 +88,25 @@ export function ServiceCard({
           >
             {descricao}
           </p>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => setDescricaoAberta((atual) => !atual)}
-            aria-expanded={descricaoAberta}
-            aria-label={
-              descricaoAberta
-                ? `Recolher descrição de ${service.name}`
-                : `Ver descrição completa de ${service.name}`
-            }
-            className="shrink-0 text-muted-foreground"
-          >
-            <ChevronDown
-              className={cn("size-4 transition-transform", descricaoAberta && "rotate-180")}
-            />
-          </Button>
+          {mostrarSeta && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => setDescricaoAberta((atual) => !atual)}
+              aria-expanded={descricaoAberta}
+              aria-label={
+                descricaoAberta
+                  ? `Recolher descrição de ${service.name}`
+                  : `Ver descrição completa de ${service.name}`
+              }
+              className="shrink-0 text-muted-foreground"
+            >
+              <ChevronDown
+                className={cn("size-4 transition-transform", descricaoAberta && "rotate-180")}
+              />
+            </Button>
+          )}
         </div>
       )}
 

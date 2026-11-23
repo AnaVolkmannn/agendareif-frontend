@@ -9,7 +9,12 @@ import { Button } from "@/components/ui/button";
 import { CalendarMonth } from "@/components/sections/scheduling/calendar-month";
 import { TimeSlotGrid } from "@/components/sections/scheduling/time-slot-grid";
 import { markNavigatedWithinApp } from "@/lib/app-nav-state";
-import { getAvailableSlots, getSelectableDays, type AvailableSlot } from "@/lib/api/scheduling";
+import {
+  getAvailableSlots,
+  getDiasComHorario,
+  getSelectableDays,
+  type AvailableSlot,
+} from "@/lib/api/scheduling";
 
 export default function SchedulingPage() {
   return (
@@ -46,13 +51,53 @@ function SchedulingContent() {
   const [isLoadingTimes, setIsLoadingTimes] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const availableDays = getSelectableDays(year, month);
+  /**
+   * Disponibilidade do mês, carregada de uma vez. Guardamos junto o mês a
+   * que ela pertence: enquanto não bater com o mês na tela, ainda está
+   * carregando. Isso evita exibir por um instante os dias do mês anterior.
+   */
+  const [disponibilidade, setDisponibilidade] = useState<{
+    year: number;
+    month: number;
+    dias: number[];
+  } | null>(null);
+
+  const dadosDoMes =
+    disponibilidade?.year === year && disponibilidade?.month === month
+      ? disponibilidade.dias
+      : null;
+  const isLoadingDias = dadosDoMes === null;
+  const diasComHorario = dadosDoMes ?? [];
 
   useEffect(() => {
     setSelectedDay(null);
     setSelectedSlot(null);
     setSlots([]);
   }, [year, month]);
+
+  // Disponibilidade do mês inteiro, numa chamada só.
+  useEffect(() => {
+    if (missingParams || !professionalId || !serviceId) return;
+
+    let atual = true;
+
+    // A janela de 3 meses continua valendo: o backend não a conhece.
+    const permitidos = new Set(getSelectableDays(year, month));
+
+    getDiasComHorario(professionalId, serviceId, year, month)
+      .then((dias) => dias.filter((dia) => permitidos.has(dia)))
+      // Sem essa informação não dá para saber quais dias têm vaga. Liberamos
+      // todos os da janela para não travar o agendamento — o cliente descobre
+      // ao clicar, como era antes.
+      .catch(() => [...permitidos])
+      .then((dias) => {
+        if (atual) setDisponibilidade({ year, month, dias });
+      });
+
+    return () => {
+      atual = false;
+    };
+  }, [year, month, professionalId, serviceId, missingParams]);
 
   useEffect(() => {
     if (selectedDay === null || missingParams || !professionalId || !serviceId) return;
@@ -147,12 +192,12 @@ function SchedulingContent() {
       <CalendarMonth
         year={year}
         month={month}
-        availableDays={availableDays}
+        availableDays={diasComHorario}
         selectedDay={selectedDay}
         onSelectDay={setSelectedDay}
         onPrevMonth={handlePrevMonth}
         onNextMonth={handleNextMonth}
-        isLoading={false}
+        isLoading={isLoadingDias}
       />
 
       {selectedDay && (

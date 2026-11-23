@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { X } from "lucide-react";
 
 interface PhotoViewerProps {
@@ -8,6 +9,16 @@ interface PhotoViewerProps {
 }
 
 export function PhotoViewer({ url, onClose }: PhotoViewerProps) {
+  // Esc fecha, como em qualquer visualizador de imagem.
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onClose]);
+
   return (
     <div
       onClick={onClose}

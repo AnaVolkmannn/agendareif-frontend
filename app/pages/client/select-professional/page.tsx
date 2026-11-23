@@ -55,24 +55,24 @@ export default function SelecProfissionalPage() {
       <h1 className="mb-1 mt-2 font-glacial text-2xl font-extrabold md:text-3xl">
         Escolha o profissional
       </h1>
-      <p className="mb-6 text-[13px] text-white/70 md:text-sm">
+      <p className="mb-6 text-[13px] text-foreground/70 md:text-sm">
         Selecione o profissional que irá lhe atender
       </p>
 
       {status === "loading" && (
-        <p className="text-sm text-white/70" role="status">
+        <p className="text-sm text-foreground/70" role="status">
           Carregando profissionais…
         </p>
       )}
 
       {status === "error" && (
-        <p className="text-sm text-red-300" role="alert">
+        <p className="text-sm text-destructive" role="alert">
           Não foi possível carregar os profissionais agora. Tente novamente em instantes.
         </p>
       )}
 
       {status === "success" && profissionais.length === 0 && (
-        <p className="text-sm text-white/70">Nenhum profissional disponível no momento.</p>
+        <p className="text-sm text-foreground/70">Nenhum profissional disponível no momento.</p>
       )}
 
       {status === "success" && profissionais.length > 0 && (
