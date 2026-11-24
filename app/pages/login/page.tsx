@@ -134,6 +134,7 @@ export default function LoginPage() {
               <Button
                 type="button"
                 variant="link"
+                onClick={() => router.push("/pages/login/forgot-password")}
                 className="h-auto p-0 text-xs text-foreground/60"
               >
                 Esqueci minha senha
