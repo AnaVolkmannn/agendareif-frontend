@@ -58,9 +58,11 @@ export function ServiceCard({
 
       {descricao && (
         <div className="mt-2 flex items-start gap-2">
+          {/* whitespace-pre-line preserva as quebras de linha digitadas pelo
+              profissional; break-words evita estouro com palavras longas. */}
           <p
             className={cn(
-              "min-w-0 flex-1 text-[13px] leading-snug text-muted-foreground",
+              "min-w-0 flex-1 whitespace-pre-line break-words text-[13px] leading-snug text-muted-foreground",
               !descricaoAberta && "line-clamp-2"
             )}
           >

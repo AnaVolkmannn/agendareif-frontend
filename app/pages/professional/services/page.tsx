@@ -6,6 +6,7 @@ import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 
 import { ServiceListItem } from "@/components/sections/my-services/service-list-item";
 import { ServiceFormDialog } from "@/components/sections/my-services/service-form-dialog";
+import { ServicePhotosDialog } from "@/components/sections/service/service-photos-dialog";
 import { Button } from "@/components/ui/button";
 import { excluirServico, getServices } from "@/lib/api/services";
 import type { Service } from "@/types/service";
@@ -18,6 +19,11 @@ export default function MyServicesPage() {
   const [dialogCadastroAberto, setDialogCadastroAberto] = useState(false);
   const [servicoEmEdicao, setServicoEmEdicao] = useState<Service | null>(null);
   const [excluindoId, setExcluindoId] = useState<string | null>(null);
+  // Foto ampliada: qual serviço e qual foto (índice). null = visualizador fechado.
+  const [fotoAberta, setFotoAberta] = useState<{
+    servico: Service;
+    index: number;
+  } | null>(null);
 
   // Não mexe no status aqui dentro: o estado inicial já é "loading".
   useEffect(() => {
@@ -102,6 +108,7 @@ export default function MyServicesPage() {
                   servico={servico}
                   onEditar={setServicoEmEdicao}
                   onExcluir={handleExcluir}
+                  onAbrirFoto={(s, index) => setFotoAberta({ servico: s, index })}
                 />
               ))}
             </ul>
@@ -135,6 +142,17 @@ export default function MyServicesPage() {
             if (!open) setServicoEmEdicao(null);
           }}
           onSalvo={handleServicoAtualizado}
+        />
+
+        <ServicePhotosDialog
+          service={fotoAberta?.servico ?? null}
+          index={fotoAberta?.index ?? 0}
+          onIndexChange={(index) =>
+            setFotoAberta((atual) => (atual ? { ...atual, index } : atual))
+          }
+          onOpenChange={(open) => {
+            if (!open) setFotoAberta(null);
+          }}
         />
 
         {excluindoId && (

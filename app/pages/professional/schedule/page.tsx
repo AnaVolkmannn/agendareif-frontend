@@ -152,9 +152,9 @@ export default function SchedulePage() {
       <main className="mx-auto w-full max-w-3xl px-4 py-5 md:px-8 md:py-8">
         <section className="flex flex-col gap-4">
           <div>
-            <h2 className="text-[13px] font-bold uppercase tracking-wide">
+            <p className="text-[13px] font-bold uppercase tracking-wide">
               Horário padrão
-            </h2>
+            </p>
             <p className="text-[13px] text-muted-foreground">
               Dias e horários que se repetem toda semana
             </p>
@@ -201,9 +201,9 @@ export default function SchedulePage() {
               </div>
 
               <div>
-                <h3 className="mb-2 text-[13px] font-bold uppercase tracking-wide">
+                <p className="mb-2 text-[13px] font-bold uppercase tracking-wide">
                   Dias da semana
-                </h3>
+                </p>
                 <ul className="flex flex-col gap-1.5">
                   {horario.dias.map((dia) => (
                     <WeekdayRow

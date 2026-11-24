@@ -23,6 +23,8 @@ interface SchedulingRequestDTO {
   serviceId: number;
   scheduledAt: string;
   imageUrl: string | null;
+  /** Observação do cliente para o profissional (até 300 caracteres). */
+  observation: string | null;
 }
 
 interface SchedulingResponseDTO {
@@ -32,6 +34,7 @@ interface SchedulingResponseDTO {
   serviceId: number;
   scheduledAt: string;
   canceled: boolean;
+  observation: string | null;
 }
 
 /** O que foi escolhido nas telas anteriores (chega pela URL). */
@@ -126,7 +129,8 @@ export async function confirmarAgendamento(
       };
     }
 
-    const clientId = await obterClienteId(toClientRequest(dados));
+    const clientRequest = toClientRequest(dados);
+    const clientId = await obterClienteId(clientRequest);
 
     const body: SchedulingRequestDTO = {
       clientId,
@@ -134,6 +138,7 @@ export async function confirmarAgendamento(
       serviceId: Number(agendamento.serviceId),
       scheduledAt: agendamento.scheduledAt,
       imageUrl: agendamento.imagemUrl ?? null,
+      observation: clientRequest.observation,
     };
 
     await api<SchedulingResponseDTO>("/schedulings", {
