@@ -154,6 +154,7 @@ export default function DashboardPage() {
                 service: null,
                 client: null,
                 inspiracaoUrl: null,
+                 observacao: null,
               }
             : a,
         ),
