@@ -154,7 +154,7 @@ export default function DashboardPage() {
                 service: null,
                 client: null,
                 inspiracaoUrl: null,
-                 observacao: null,
+                observacao: null,
               }
             : a,
         ),
@@ -181,17 +181,26 @@ export default function DashboardPage() {
 
       <main className="mx-auto flex min-h-[calc(100vh-73px)] w-full max-w-2xl flex-col px-4 py-5 md:px-8 md:py-8">
         <div className="mb-5 flex justify-center gap-2">
-          {PERIODOS.map((p) => (
-            <Button
-              key={p.value}
-              type="button"
-              variant={periodo === p.value ? "default" : "secondary"}
-              onClick={() => setPeriodo(p.value)}
-              className="rounded-full px-4 py-2 text-sm font-semibold"
-            >
-              {p.label}
-            </Button>
-          ))}
+          {PERIODOS.map((p) => {
+            const ativo = periodo === p.value;
+
+            return (
+              <Button
+                key={p.value}
+                type="button"
+                variant={ativo ? "default" : "secondary"}
+                aria-pressed={ativo}
+                onClick={() => setPeriodo(p.value)}
+                className={
+                  ativo
+                    ? "rounded-full px-4 py-2 text-sm font-semibold shadow-sm"
+                    : "rounded-full bg-muted px-4 py-2 text-sm font-semibold text-muted-foreground hover:bg-muted/70 hover:text-foreground"
+                }
+              >
+                {p.label}
+              </Button>
+            );
+          })}
         </div>
 
         {periodo === "semana" && (
