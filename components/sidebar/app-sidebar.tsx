@@ -88,28 +88,22 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-      <div className="mx-3 my-2 border-t border-sidebar-border" />
-
-       <SidebarGroup>
-        <SidebarGroupContent>
-           <SidebarMenu>
-             <SidebarMenuItem>
-               <SidebarMenuButton                 
-                onClick={handleSair}
-                 tooltip="Sair"
-                 className="h-10 gap-3 rounded-lg"
-                >
-                 <LogOut className="size-4 shrink-0" />
-                 <span className="truncate">Sair</span>
-               </SidebarMenuButton>
-             </SidebarMenuItem>
-           </SidebarMenu>
-         </SidebarGroupContent>
-       </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
-        <div className="mx-auto flex max-w-6xl items-center">
+      <SidebarFooter className="gap-2 border-t border-sidebar-border p-2">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={handleSair}
+              tooltip="Sair"
+              className="h-10 gap-3 rounded-lg"
+            >
+              <LogOut className="size-4 shrink-0" />
+              <span className="truncate">Sair</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+        <div className="flex items-center justify-center">
           <ModeToggle />
         </div>
       </SidebarFooter>
